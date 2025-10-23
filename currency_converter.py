@@ -1,52 +1,78 @@
 #!/usr/bin/env python3
 """
 Simple CLI Currency Converter using https://exchangerate.host (no API key).
+
 Usage examples:
   python currency_converter.py --from USD --to EUR --amount 100
   python currency_converter.py --list
+  python currency_converter.py --list --verbose
   python currency_converter.py --from GBP --to INR --amount 50 --date 2023-01-01
 """
 import argparse
 import sys
 import requests
+from requests.exceptions import RequestException
 
 BASE_URL = "https://api.exchangerate.host"
 
 
 def get_symbols():
-    """Return mapping of currency code -> description."""
+    """Return tuple (symbols_dict_or_None, raw_json_or_text, status_code)."""
     url = f"{BASE_URL}/symbols"
-    resp = requests.get(url, timeout=8)
-    resp.raise_for_status()
-    data = resp.json()
-    return data.get("symbols", {})
+    try:
+        resp = requests.get(url, timeout=8)
+    except RequestException as e:
+        # Network-level error (DNS, connection, TLS, proxy, etc.)
+        return None, f"Network error: {e}", None
+
+    status = resp.status_code
+    try:
+        data = resp.json()
+    except ValueError:
+        # Response wasn't JSON
+        return None, resp.text, status
+
+    symbols = data.get("symbols")
+    return symbols, data, status
 
 
 def convert(from_currency, to_currency, amount, date=None):
-    """
-    Convert amount from from_currency to to_currency.
-    If date is provided (YYYY-MM-DD), the conversion will use historical rates.
-    Returns the parsed JSON response.
-    """
     params = {
         "from": from_currency.upper(),
         "to": to_currency.upper(),
         "amount": amount,
     }
     if date:
-        params["date"] = date  # exchangerate.host accepts a 'date' query param
+        params["date"] = date
     url = f"{BASE_URL}/convert"
     resp = requests.get(url, params=params, timeout=8)
     resp.raise_for_status()
     return resp.json()
 
 
-def list_currencies():
-    symbols = get_symbols()
+def list_currencies(verbose=False):
+    symbols, raw, status = get_symbols()
     if not symbols:
         print("No symbols found.")
+        # Provide helpful diagnostics
+        if status is None:
+            print("Possible network problem (unable to reach exchangerate.host).")
+        else:
+            print(f"HTTP status: {status}")
+        if verbose:
+            print("\n-- Raw response or error detail --")
+            # raw may be dict or string
+            if isinstance(raw, dict):
+                import json
+                print(json.dumps(raw, indent=2, sort_keys=True))
+            else:
+                print(raw)
+        print("\nChecks & suggestions:")
+        print("- Do you have an active internet connection?")
+        print("- Are you behind a proxy / corporate firewall that blocks https://api.exchangerate.host ?")
+        print("- Try running: curl https://api.exchangerate.host/symbols  (or open that URL in your browser)")
         return
-    # sort by code
+
     for code in sorted(symbols.keys()):
         desc = symbols[code].get("description", "")
         print(f"{code}\t- {desc}")
@@ -59,12 +85,13 @@ def main():
     parser.add_argument("--amount", "-a", type=float, default=1.0, help="Amount to convert (default: 1.0)")
     parser.add_argument("--date", "-d", help="Optional date (YYYY-MM-DD) for historical rates")
     parser.add_argument("--list", action="store_true", help="List supported currency codes")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Show verbose diagnostics on errors")
     args = parser.parse_args()
 
     if args.list:
         try:
-            list_currencies()
-        except requests.RequestException as e:
+            list_currencies(verbose=args.verbose)
+        except RequestException as e:
             print("Network error while fetching currency list:", e, file=sys.stderr)
             sys.exit(1)
         return
@@ -76,14 +103,13 @@ def main():
 
     try:
         data = convert(args.from_currency, args.to_currency, args.amount, date=args.date)
-    except requests.RequestException as e:
+    except RequestException as e:
         print("Network error during conversion:", e, file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         print("Error:", e, file=sys.stderr)
         sys.exit(1)
 
-    # The API returns fields like: success, query, info (rate), result
     if not data:
         print("No response data received.", file=sys.stderr)
         sys.exit(1)
