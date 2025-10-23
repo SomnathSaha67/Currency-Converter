@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Simple Currency Converter</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .card { border: 1px solid #e1e1e1; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+    label { display:block; margin-top: 0.5rem; }
+    select, input { padding: 0.5rem; width:100%; max-width:320px; }
+    button { margin-top: 1rem; padding: 0.6rem 1rem; }
+    .result { margin-top: 1rem; font-size: 1.2rem; font-weight:600; }
+    .meta { color: #666; font-size: 0.9rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Simple Currency Converter</h1>
+  <div class="card">
+    <div>
+      <label>Amount</label>
+      <input id="amount" type="number" value="1" step="any" />
+    </div>
+
+    <div>
+      <label>From</label>
+      <select id="from"></select>
+    </div>
+
+    <div>
+      <label>To</label>
+      <select id="to"></select>
+    </div>
+
+    <div>
+      <button id="convertBtn">Convert</button>
+      <button id="swapBtn" style="margin-left:0.5rem;">Swap</button>
+    </div>
+
+    <div class="result" id="resultArea"></div>
+    <div class="meta" id="metaArea"></div>
+  </div>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>

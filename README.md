@@ -1,37 +1,46 @@
-# Simple CLI Currency Converter (Python)
+```markdown
+# Simple Currency Converter Web App
 
-This is a beginner-friendly currency converter using exchangerate.host (free, no API key).
+This is a minimal Flask web app that converts currencies in real time using public providers.
 
-Files:
-- `currency_converter.py` — the main script
-- `requirements.txt` — Python dependency (requests)
+Features
+- Uses frankfurter.app as primary provider and exchangerate.host as fallback.
+- Serves a simple UI that lists worldwide currencies and converts amounts.
+- Caches currency list in memory for one hour to reduce API calls.
 
-Quick start
-1. Install Python (3.7+ recommended).
-2. Create and activate a virtual environment (optional but recommended):
-   - macOS / Linux:
-     python3 -m venv venv
-     source venv/bin/activate
-   - Windows (PowerShell):
-     python -m venv venv
-     .\venv\Scripts\Activate.ps1
-3. Install dependencies:
+Quick start (local)
+1. Install Python 3.8+ and create a virtual environment (recommended):
+   python -m venv venv
+   source venv/bin/activate   # macOS / Linux
+   .\venv\Scripts\Activate.ps1  # Windows PowerShell
+
+2. Install dependencies:
    pip install -r requirements.txt
-4. Run examples:
-   - List currencies:
-     python currency_converter.py --list
-   - Convert 100 USD to EUR:
-     python currency_converter.py --from USD --to EUR --amount 100
-   - Historical conversion (example):
-     python currency_converter.py --from GBP --to INR --amount 10 --date 2022-01-01
 
-Notes
-- The script uses https://exchangerate.host which is free and doesn't require an API key.
-- If you want a web or GUI front-end later, the script's `convert` function can be re-used.
+3. Run the app:
+   export FLASK_APP=app.py
+   export FLASK_ENV=development   # optional for auto-reload
+   flask run
 
-Next ideas to extend this project
-- Add caching to avoid repeated API calls when converting many times.
-- Add a small GUI with tkinter.
-- Build a Flask web app with this backend.
-- Support recurring conversions and save logs to CSV/SQLite.
-- Add unit tests for the conversion functions.
+   Or run directly:
+   python app.py
+
+4. Open http://127.0.0.1:5000 in your browser.
+
+Project layout
+- app.py                -> Flask backend and API endpoints
+- templates/index.html  -> Frontend HTML
+- static/main.js        -> Frontend JavaScript
+- requirements.txt
+- README.md
+
+Notes & next steps
+- This implementation uses in-memory cache for symbols; for production use a persistent cache (Redis) or store in a DB.
+- To scale, add server-side caching for conversion results and rate limiting to protect providers.
+- For production deployment consider Docker and services like Railway, Render, or Heroku.
+- If you want, I can:
+  - provide a Dockerfile and deployment instructions,
+  - add unit tests for the conversion functions,
+  - add user-facing features (history, favorites, CSV export),
+  - or switch the frontend to React/Vue for richer UX.
+```
