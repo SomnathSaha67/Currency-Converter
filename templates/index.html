@@ -5,90 +5,92 @@
   <title>Currency Converter</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
+    /* Page styling */
     body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background-color: #f0f4f8;  /* soft light blue background */
-    margin: 0;
-    padding: 2rem 1rem;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-  }
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background-color: #f0f2f86b;
+      margin: 0;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
 
-  /* Centered card */
-  .card {
-    background-color: #ffffff;  /* white card */
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    width: 100%;
-  }
+    /* Centered card */
+    .card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
 
-  h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 1.5rem;
-  }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
 
-  label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: 500;
-    color: #555;
-  }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 500;
+      color: #555;
+    }
 
-  input, select {
-    padding: 0.6rem;
-    width: 100%;
-    margin-top: 0.3rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
+    input, select {
+      padding: 0.6rem;
+      width: 100%;
+      margin-top: 0.3rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
 
-  button {
-    margin-top: 1rem;
-    padding: 0.7rem 1rem;
-    border: none;
-    border-radius: 6px;
-    background-color: #4a90e2;  /* nice blue button */
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background-color: #4a90e2;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
 
-  button:hover {
-    background-color: #357ab8;
-  }
+    button:hover {
+      background-color: #357ab8;
+    }
 
-  #swapBtn {
-    margin-left: 0.5rem;
-    background-color: #f5a623;  /* orange button for swap */
-  }
+    #swapBtn {
+      margin-left: 0.5rem;
+      background-color: #f5a623;
+    }
 
-  #swapBtn:hover {
-    background-color: #d48806;
-  }
+    #swapBtn:hover {
+      background-color: #d48806;
+    }
 
-  .result {
-    margin-top: 1rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #222;
-  }
+    .result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #222;
+    }
 
-  .meta {
-    color: #666;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-  }
+    .meta {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Currency Converter</h1>
   <div class="card">
+    <h1>Currency Converter</h1>
+
     <div>
       <label>Amount</label>
       <input id="amount" type="number" value="1" step="any" />
@@ -106,7 +108,7 @@
 
     <div>
       <button id="convertBtn">Convert</button>
-      <button id="swapBtn" style="margin-left:0.5rem;">Swap</button>
+      <button id="swapBtn">Swap</button>
     </div>
 
     <div class="result" id="resultArea"></div>
