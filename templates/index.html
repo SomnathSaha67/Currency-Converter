@@ -5,13 +5,85 @@
   <title>Currency Converter</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; max-width: 900px; margin: 2rem auto; padding: 0 1rem;  background-color: #f5f0ff00}
-    .card { border: 1px solid #e1e1e158; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-    label { display:block; margin-top: 0.5rem; }
-    select, input { padding: 0.5rem; width:100%; max-width:320px; }
-    button { margin-top: 1rem; padding: 0.6rem 1rem; }
-    .result { margin-top: 1rem; font-size: 1.2rem; font-weight:600; }
-    .meta { color: #666; font-size: 0.9rem; margin-top: 0.5rem; }
+    body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background-color: #f0f4f8;  /* soft light blue background */
+    margin: 0;
+    padding: 2rem 1rem;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  /* Centered card */
+  .card {
+    background-color: #ffffff;  /* white card */
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+  }
+
+  h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 500;
+    color: #555;
+  }
+
+  input, select {
+    padding: 0.6rem;
+    width: 100%;
+    margin-top: 0.3rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #4a90e2;  /* nice blue button */
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #357ab8;
+  }
+
+  #swapBtn {
+    margin-left: 0.5rem;
+    background-color: #f5a623;  /* orange button for swap */
+  }
+
+  #swapBtn:hover {
+    background-color: #d48806;
+  }
+
+  .result {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .meta {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
   </style>
 </head>
 <body>
