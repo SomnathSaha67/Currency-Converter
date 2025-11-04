@@ -17,75 +17,112 @@
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 20px;
-      padding: 2.5rem;
-      box-shadow: 0 6px 32px rgba(50, 120, 150, 0.10), 0 1.5px 6px rgba(20, 60, 90, 0.12);
+      background: rgba(255, 255, 255, 0.86);
+      border-radius: 22px;
+      padding: 2.8rem 2.3rem 2.3rem 2.3rem;
+      box-shadow:
+        0 16px 32px 0 rgba(50, 120, 150, 0.09),
+        0 1.5px 6px 0 rgba(20, 60, 90, 0.09);
       max-width: 430px;
-      width: 90%;
-      color: #12313b;
-      backdrop-filter: blur(3px);
+      width: 100%;
+      color: #11374a;
+      backdrop-filter: blur(6px);
       box-sizing: border-box;
+      transition: box-shadow 0.2s;
+    }
+    .card:hover {
+      box-shadow:
+        0 20px 40px 0 rgba(50, 120, 150, 0.15),
+        0 3px 12px 0 rgba(30, 60, 120, 0.10);
     }
 
     h1 {
       text-align: center;
-      color: #0f2027;
-      margin-bottom: 1.5rem;
+      color: #19395c;
+      margin-bottom: 2rem;
+      font-weight: 700;
+      font-size: 2rem;
+      letter-spacing: 0.02em;
     }
 
     label {
       display: block;
-      margin-top: 1rem;
+      margin-top: 1.1rem;
       font-weight: 500;
-      color: #040202;
+      color: #183046;
+      letter-spacing: 0.01em;
     }
 
-    input, select {
-      padding: 0.6rem;
+    input[type="number"], input[type="date"], select {
+      padding: 0.7rem 1rem;
       width: 100%;
-      margin-top: 0.3rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+      margin-top: 0.35rem;
+      border-radius: 8px;
+      border: 1.2px solid #c0d0e6;
+      background: rgba(246, 248, 252, 0.93);
+      font-size: 1.07rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0.5px 3px rgba(30,72,125,0.04);
+    }
+
+    input:focus, select:focus {
+      border-color: #3769e7;
+      outline: none;
+      box-shadow: 0 2px 8px rgba(55,105,231,0.08);
     }
 
     button {
-      margin-top: 1rem;
-      padding: 0.7rem 1rem;
+      margin-top: 1.2rem;
+      padding: 0.8rem 1.3rem;
       border: none;
-      border-radius: 6px;
-      background-color: #4a90e2;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #4677da 0%, #3aa7f5 100%);
       color: #fff;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.07rem;
       cursor: pointer;
-      transition: background-color 0.3s;
+      box-shadow: 0 2px 5px rgba(50,120,150,0.09);
+      margin-right: 0.8rem;
+      transition: background 0.25s, box-shadow 0.2s;
     }
-
     button:hover {
-      background-color: #357ab8;
+      background: linear-gradient(90deg, #3562b8 0%, #2889d3 100%);
+      box-shadow: 0 4px 16px rgba(45,96,180,0.08);
     }
-
     #swapBtn {
-      margin-left: 0.5rem;
-      background-color: #f5a623;
+      background: linear-gradient(90deg, #f8b151 0%, #f6c542 100%);
+      color: #1a2230;
+      margin-left: 0;
     }
-
     #swapBtn:hover {
-      background-color: #d48806;
+      background: linear-gradient(90deg, #e19a39 0%, #e5b53f 100%);
     }
 
     .result {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #222;
+      margin-top: 1.3rem;
+      font-size: 1.32rem;
+      font-weight: 700;
+      color: #224c72;
+      line-height: 1.3;
+      text-align: center;
     }
 
     .meta {
-      color: #141111;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
+      color: #3c4b5c;
+      font-size: 1rem;
+      margin-top: 0.7rem;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 1.3rem 0.8rem 1.3rem 0.8rem;
+        max-width: 97vw;
+      }
+      h1 {
+        font-size: 1.32rem;
+      }
     }
   </style>
 </head>
