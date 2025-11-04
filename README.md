@@ -1,7 +1,7 @@
-Simple Currency Converter (Flask web app)
+# **Simple Currency Converter (Flask web app)**
 A minimal, beginner-friendly Flask web application for real-time and historical currency conversion, using robust public exchange-rate providers.
 
-Features
+## **Features**
 Real-time and historical conversion (any major currency, any date available)
 
 Swap and instantly reverse currency direction
@@ -12,15 +12,15 @@ Modern, responsive UI — clear results next to inputs
 
 Docker & cloud ready (Render, Railway, Heroku)
 
-Folder & File Overview
-File/Folder	Purpose
-app.py	Flask backend and API logic
-templates/index.html	Frontend HTML & styles
-static/main.js	Frontend JS, conversion logic
-requirements.txt	Python dependencies list
+## **Folder & File Overview**
+### File/Folder	and their Purpose
+app.py:	Flask backend and API logic
+templates/index.html:	Frontend HTML & styles
+static/main.js:	Frontend JS, conversion logic
+requirements.txt:	Python dependencies list
 Dockerfile, Procfile	Deployment-ready configuration
-.gitignore	Common file exclusions
-Quick Local Setup
+.gitignore:	Common file exclusions
+## **Quick Local Setup**
 Clone repository
 
 text
@@ -72,7 +72,7 @@ App not loading? Check browser JS console and backend via curl
 
 If API providers are down, retry or use a different network.
 
-Next Step Ideas
+## **Next Step Ideas**
 Add a historical rate chart (with Chart.js/Plotly)
 
 Alerts/notifications for rate targets
@@ -81,10 +81,9 @@ Save favorites or conversion history
 
 UI upgrades, test suite, future PWA
 
-Attribution
+## **Attribution**
 Data from frankfurter.app and exchangerate.host.
 
-MIT License or your preferred license (add LICENSE file as needed).
 
 Ready for deployment and easy upgrades!
 Pull requests, feedback, and suggestions always welcome.
