@@ -15,47 +15,62 @@
       justify-content: center;
       align-items: center;
     }
-    /* Layout centered, not boxed */
     .container {
       width: 100%;
-      max-width: 540px;
-      padding: 3vw 2vw;
+      max-width: 480px;
+      padding: 2.8rem 1.2rem;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
     }
     h1 {
       text-align: center;
-      color: #19395c;
-      margin-bottom: 2rem;
-      font-weight: 700;
+      color: #143158;
       font-size: 2rem;
+      margin-bottom: 1.2rem;
+      font-weight: 700;
       letter-spacing: 0.02em;
+      transition: color 0.3s;
     }
     label {
-      display: block;
-      margin-top: 1.1rem;
+      margin-top: 1rem;
       font-weight: 500;
-      color: #183046;
+      color: #1d3557;
+      margin-bottom: 0.15rem;
+      display: block;
+      align-self: flex-start;
       letter-spacing: 0.01em;
+      transition: color 0.25s;
     }
     input[type="number"], input[type="date"], select {
       padding: 0.7rem 1rem;
       width: 100%;
-      margin-top: 0.35rem;
+      max-width: 420px;
+      margin-bottom: 0.65rem;
       border-radius: 8px;
-      border: 1.2px solid #c0d0e6;
+      border: 1.2px solid #bac8e1;
       background: rgba(246, 248, 252, 0.97);
       font-size: 1.07rem;
       font-family: inherit;
-      box-shadow: 0 0.5px 3px rgba(30,72,125,0.03);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0.5px 2px rgba(30,72,125,0.04);
+      transition: 
+        border-color 0.28s, 
+        box-shadow 0.21s, 
+        background 0.3s;
     }
     input:focus, select:focus {
       border-color: #3769e7;
       outline: none;
-      box-shadow: 0 3px 10px rgba(55,105,231,0.10);
+      background: #ecf2fa;
+      box-shadow: 0 3px 16px 0 rgba(67,115,218,0.17);
     }
     button {
-      margin-top: 1.2rem;
+      min-width: 120px;
+      margin-top: 1.0rem;
+      margin-right: 0.7rem;
+      margin-bottom: 0.1rem;
       padding: 0.8rem 1.3rem;
       border: none;
       border-radius: 8px;
@@ -64,41 +79,56 @@
       font-weight: 700;
       font-size: 1.07rem;
       cursor: pointer;
-      margin-right: 0.8rem;
-      transition: background 0.25s, box-shadow 0.2s;
+      box-shadow: 0 2px 5px rgba(50,120,150,0.09);
+      transition: 
+        background 0.28s, 
+        box-shadow 0.19s, 
+        transform 0.21s;
     }
-    button:hover {
+    button:hover, button:focus {
       background: linear-gradient(90deg, #3562b8 0%, #2889d3 100%);
-      box-shadow: 0 4px 16px rgba(45,96,180,0.11);
+      box-shadow: 0 4px 16px rgba(45,96,180,0.13);
+      transform: translateY(-2px) scale(1.03);
     }
     #swapBtn {
       background: linear-gradient(90deg, #f8b151 0%, #f6c542 100%);
       color: #1a2230;
       margin-left: 0;
     }
-    #swapBtn:hover {
+    #swapBtn:hover, #swapBtn:focus {
       background: linear-gradient(90deg, #e19a39 0%, #e5b53f 100%);
+      box-shadow: 0 4px 16px rgba(180,144,45,0.10);
+      transform: translateY(-2px) scale(1.03);
     }
     .result {
-      margin-top: 1.3rem;
-      font-size: 1.32rem;
+      margin-top: 1.2rem;
+      font-size: 1.23rem;
       font-weight: 700;
       color: #224c72;
       line-height: 1.3;
       text-align: center;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: color 0.28s;
     }
     .meta {
       color: #3c4b5c;
       font-size: 1rem;
       margin-top: 0.7rem;
       text-align: center;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: color 0.28s;
     }
     @media (max-width: 600px) {
       .container {
-        padding: 1.3rem 0.7rem 1.3rem 0.7rem;
+        padding: 1.1rem 0.4rem;
         max-width: 99vw;
       }
-      h1 { font-size: 1.32rem; }
+      h1 { font-size: 1.19rem; }
+      .result, .meta { font-size: 0.98rem; }
     }
   </style>
 </head>
@@ -106,19 +136,19 @@
   <div class="container">
     <h1>Currency Converter</h1>
     <div>
-      <label>Amount</label>
+      <label for="amount">Amount</label>
       <input id="amount" type="number" value="1" step="any" />
     </div>
     <div>
-      <label>From</label>
+      <label for="from">From</label>
       <select id="from"></select>
     </div>
     <div>
-      <label>To</label>
+      <label for="to">To</label>
       <select id="to"></select>
     </div>
     <div>
-      <label>Date (optional)</label>
+      <label for="date">Date (optional)</label>
       <input id="date" type="date" />
     </div>
     <div>
