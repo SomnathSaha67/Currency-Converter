@@ -5,34 +5,32 @@
   <title>Currency Converter</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    /* Full page background with deep gradient */
     body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: linear-gradient(120deg, #233a85 0%, #163845 100%);
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+      background: linear-gradient(120deg, #233a85 0%, #163845 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    /* Card styling */
     .card {
       background: rgba(255, 255, 255, 0.85);
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 6px 32px rgba(50, 120, 150, 0.10), 0 1.5px 6px rgba(20, 60, 90, 0.12);
-  max-width: 430px;
-  width: 90%;
-  color: #12313b;
-  backdrop-filter: blur(3px); /* Optional for frosted-glass effect */
-  box-sizing: border-box;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 6px 32px rgba(50, 120, 150, 0.10), 0 1.5px 6px rgba(20, 60, 90, 0.12);
+      max-width: 430px;
+      width: 90%;
+      color: #12313b;
+      backdrop-filter: blur(3px);
+      box-sizing: border-box;
     }
 
     h1 {
       text-align: center;
-      color: #0f2027; /* dark heading */
+      color: #0f2027;
       margin-bottom: 1.5rem;
     }
 
@@ -57,7 +55,7 @@
       padding: 0.7rem 1rem;
       border: none;
       border-radius: 6px;
-      background-color: #4a90e2;  /* bright blue */
+      background-color: #4a90e2;
       color: #fff;
       font-weight: 600;
       cursor: pointer;
@@ -70,7 +68,7 @@
 
     #swapBtn {
       margin-left: 0.5rem;
-      background-color: #f5a623; /* orange swap button */
+      background-color: #f5a623;
     }
 
     #swapBtn:hover {
@@ -111,6 +109,11 @@
     </div>
 
     <div>
+      <label>Date (optional)</label>
+      <input id="date" type="date" />
+    </div>
+
+    <div>
       <button id="convertBtn">Convert</button>
       <button id="swapBtn">Swap</button>
     </div>
@@ -122,3 +125,4 @@
   <script src="/static/main.js"></script>
 </body>
 </html>
+

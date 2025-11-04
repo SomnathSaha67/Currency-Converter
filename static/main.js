@@ -17,6 +17,7 @@ async function populate() {
   const toEl = document.getElementById('to');
   const resultArea = document.getElementById('resultArea');
   const metaArea = document.getElementById('metaArea');
+  const dateEl = document.getElementById('date'); // new date field
 
   resultArea.textContent = 'Loading currencies…';
   try {
@@ -49,10 +50,15 @@ async function populate() {
     const from = fromEl.value;
     const to = toEl.value;
     const amount = amountEl.value || '1';
+    const date = dateEl.value; // get date value
     resultArea.textContent = 'Converting…';
     metaArea.textContent = '';
     try {
-      const r = await fetch(`/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`);
+      let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`;
+      if (date) {
+        url += `&date=${encodeURIComponent(date)}`;
+      }
+      const r = await fetch(url);
       const j = await r.json();
       if (!j.success) {
         resultArea.textContent = 'Conversion failed: ' + (j.error || 'unknown');
