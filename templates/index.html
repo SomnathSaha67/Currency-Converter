@@ -31,17 +31,36 @@
     }
     h1 {
       text-align: center;
-      font-size: 2.3rem;
-      font-family: inherit;
+      font-size: 2.75rem;
+      font-family: 'Segoe UI', 'Montserrat', Arial, sans-serif;
       font-weight: 900;
-      background: linear-gradient(90deg,#36e4ea,#8e54e9 55%,#56c6e6 100%);
+      background: linear-gradient(90deg, #36e4ea 15%, #8e54e9 45%, #47ffa2 80%);
       color: transparent;
       -webkit-background-clip: text;
       background-clip: text;
-      text-shadow: 0 2px 24px #001e4480;
-      letter-spacing: 0.03em;
-      margin-bottom: 1.15rem;
-      margin-top: 0.2rem;
+      text-shadow: 0 3px 24px #36e4ea33, 
+                   0 1px 2px #242d4c,
+                   0 8px 34px #6f36e444;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.7rem;
+      margin-top: 0.3rem;
+      position: relative;
+      animation: popTitle 1s cubic-bezier(.18,.89,.32,1.28) 1;
+    }
+    h1::after {
+      content: "";
+      display: block;
+      width: 60%;
+      margin: 0.38rem auto 0 auto;
+      height: 4px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #36e4ea 10%, #ba54ff 90%);
+      opacity: 0.75;
+    }
+    @keyframes popTitle {
+      0% { letter-spacing: 0.01em; opacity: 0; transform: scale(0.9) translateY(-40px);}
+      80% { opacity: 1; transform: scale(1.1) translateY(10px);}
+      100% { letter-spacing: 0.04em; opacity: 1; transform: scale(1) translateY(0);}
     }
     .section {
       width: 100%;
@@ -161,6 +180,7 @@
       }
       h1 { font-size: 1.19rem; }
       .result, .meta { font-size: 0.98rem; }
+      h1::after { width: 85%; height: 3px; margin-top: 0.19rem; }
     }
   </style>
 </head>
@@ -193,3 +213,4 @@
   <script src="/static/main.js"></script>
 </body>
 </html>
+
