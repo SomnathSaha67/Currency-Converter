@@ -28,6 +28,10 @@
   .live-rate-row {display:flex;align-items:center;justify-content:space-between;font-size:1.18rem;font-weight:700;padding:0.22em 0;}
   .rate-label {color:#b8fff0;}
   .rate-value {color:#9ffbcf;font-family:monospace;}
+  #resultBox { border-radius:13px; box-shadow:0 3px 20px #90f2ffc7,0 1.5px 7px #3875f422 inset;border:1.3px solid #22363338; background:rgba(31,38,49,0.87); max-width:410px; margin:1.1em 0 1.5em 0; }
+  .result { margin:0 0 0.2em 0;}
+  .meta {margin-top:0.19em;}
+  #dashboardSection { margin-top:2.2em;}
   footer { color:#5bbcf0;font-size:1.12rem;margin:2em auto 1em auto;text-align:center;opacity:.82;}
   @media(max-width:900px){.dashboard-row{flex-direction:column;gap:18px;}}
   </style>
@@ -55,10 +59,13 @@
           <button id="dashboardBtn">Dashboard</button>
         </div>
       </form>
-      <div class="result" id="resultArea" aria-live="polite"></div>
-      <div class="meta" id="metaArea"></div>
-      <div id="dashboardSection" style="display:none;" aria-label="Conversion history and dashboard section">
-        <h2 style="font-size:1.08rem;color:#b7ffe0;margin:.9em 0 0.4em 0;">Your Conversion History</h2>
+      <!-- Conversion Result in Separate Box -->
+      <div id="resultBox">
+        <div class="result" id="resultArea" aria-live="polite"></div>
+        <div class="meta" id="metaArea"></div>
+      </div>
+      <div id="dashboardSection" style="display:none; margin-top:2.2em;" aria-label="Conversion history and dashboard section">
+        <h2 style="font-size:1.18rem;color:#70ffc6;margin:.7em 0 0.4em 0;">Your Conversion History</h2>
         <ul id="historyList"></ul>
         <canvas id="historyChart" height="100"></canvas>
       </div>

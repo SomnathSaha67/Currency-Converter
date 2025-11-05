@@ -2,14 +2,12 @@ async function fetchSymbols() {
   const res = await fetch('/api/symbols');
   return res.json();
 }
-
 function createOption(code, text) {
   const o = document.createElement('option');
   o.value = code;
   o.textContent = `${code} — ${text}`;
   return o;
 }
-
 async function populate() {
   const amountEl = document.getElementById('amount');
   const fromEl = document.getElementById('from');
@@ -73,7 +71,7 @@ async function populate() {
           <div style="font-size:1.22em;font-weight:900;letter-spacing:0.01em;margin-bottom:9px;">
             ${amt} ${fr} = ${result.toFixed(6)} ${toCode}
           </div>
-          <div style="font-size:.97em;font-weight:400;line-height:1.21;color:#70ffee; margin-bottom:19px;">
+          <div style="font-size:.97em;font-weight:400;line-height:1.21;color:#70ffee;">
             Rate: 1 ${fr} = ${rate.toFixed(6)} ${toCode}
             <span style="color:#79aec0;font-size:.95em;">(provider: ${provider})</span>
           </div>
@@ -81,7 +79,7 @@ async function populate() {
         metaArea.innerHTML = "";
       } else {
         resultArea.innerHTML = `
-          <div style="font-size:1.18em;font-weight:900;margin-bottom:19px;">
+          <div style="font-size:1.18em;font-weight:900;">
             ${amt} ${fr} = ${result} ${toCode}
             <span style="font-size:.98em;color:#89c9f0;">(provider: ${provider})</span>
           </div>`;
@@ -105,11 +103,9 @@ async function populate() {
     toEl.value = tmp;
   });
 }
-
 populate();
 
 // --- History/Dashboard ---
-
 function saveHistory(record) {
   const key = 'currencyHistory';
   const history = JSON.parse(localStorage.getItem(key)) || [];
@@ -184,3 +180,4 @@ document.getElementById('convertBtn').addEventListener('click', ()=>{
     errorEl.textContent = "";
   }
 });
+
