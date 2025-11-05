@@ -69,10 +69,23 @@ async function populate() {
       const result = data.result;
       const rate = data.info && data.info.rate ? data.info.rate : null;
       if (rate !== null) {
-        resultArea.textContent = `${amt} ${fr} = ${result.toFixed(6)} ${toCode}`;
-        metaArea.textContent = `Rate: 1 ${fr} = ${rate.toFixed(6)} ${toCode}  (provider: ${provider})`;
+        resultArea.innerHTML = `
+          <div style="font-size:1.22em;font-weight:900;letter-spacing:0.01em;margin-bottom:4px;">
+            ${amt} ${fr} = ${result.toFixed(6)} ${toCode}
+          </div>
+          <div style="font-size:.97em;font-weight:400;line-height:1.21;color:#70ffee;">
+            Rate: 1 ${fr} = ${rate.toFixed(6)} ${toCode}
+            <span style="color:#79aec0;font-size:.95em;">(provider: ${provider})</span>
+          </div>
+        `;
+        metaArea.innerHTML = "";
       } else {
-        resultArea.textContent = `${amt} ${fr} = ${result} ${toCode}  (provider: ${provider})`;
+        resultArea.innerHTML = `
+          <div style="font-size:1.18em;font-weight:900;">
+            ${amt} ${fr} = ${result} ${toCode}
+            <span style="font-size:.98em;color:#89c9f0;">(provider: ${provider})</span>
+          </div>`;
+        metaArea.innerHTML = "";
       }
       saveHistory({
         amt, from, to, date,
