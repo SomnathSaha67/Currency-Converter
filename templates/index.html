@@ -212,6 +212,14 @@ footer {
     <div class="hero-title">Currency Converter</div>
     <div class="hero-sub">Convert global currencies, view analytics, and track your conversions. Minimal, fast, and beautifully crafted.</div>
   </div>
+
+  <!-- Live Rate Card -->
+  <div class="glass-card" id="liveRateCard" style="min-width:320px; max-width:450px; text-align:center; margin: 0 auto 2em auto;">
+    <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5em;">Live Rate</div>
+    <div style="font-size:2.2rem;font-weight:900;color:#98ffe5;margin:0.4em 0;" id="liveRateValue">--</div>
+    <div id="liveRateMeta" style="font-size:.97rem;color:#b7bfc7;margin-top:.5em"></div>
+  </div>
+
   <div class="center-wrap">
     <!-- Main Convert Card -->
     <div class="glass-card" style="flex:2;">
@@ -268,6 +276,28 @@ footer {
   </footer>
   <script src="/static/main.js"></script>
   <script>
+  // --- Live Rate Widget --- //
+  async function fetchLiveINRUSD() {
+    try {
+      const res = await fetch('/api/convert?from=INR&to=USD&amount=1');
+      const data = await res.json();
+      if (data && data.success && data.data && data.data.result) {
+        document.getElementById('liveRateValue').textContent =
+          `1 INR = ${Number(data.data.result).toFixed(3)} USD`;
+        document.getElementById('liveRateMeta').textContent =
+          `Last updated: ${new Date().toLocaleString()}`;
+      } else {
+        document.getElementById('liveRateValue').textContent = "--";
+        document.getElementById('liveRateMeta').textContent = "No data";
+      }
+    } catch (err) {
+      document.getElementById('liveRateValue').textContent = "--";
+      document.getElementById('liveRateMeta').textContent = "Error loading live rate";
+    }
+  }
+  fetchLiveINRUSD();
+  setInterval(fetchLiveINRUSD, 120000); // update every 2 minutes
+
   // Demo chart for AI Insights
   const ctx = document.getElementById('aiChart').getContext('2d');
   new Chart(ctx, {
