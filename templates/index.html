@@ -5,209 +5,41 @@
   <title>Currency Converter</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,700,900|Montserrat:700&display=swap">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    box-sizing: border-box;
-  }
   body {
     min-height: 100vh;
     background: #0d1016;
-    color: #ffffff;
+    color: #fff;
     font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    overflow-x: hidden;
+    margin: 0; box-sizing: border-box;
+    display:flex; flex-direction:column; align-items:center;
   }
-  .hero {
-    width: 100%;
-    max-width: 870px;
-    text-align: center;
-    margin: 64px auto 32px auto;
-    padding: 0 16px 12px 16px;
-  }
-  .hero-title {
-    font-family: 'Montserrat', 'Inter', Arial, sans-serif;
-    font-size: clamp(2.6rem, 8vw, 4.7rem);
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 0.04em;
-    text-shadow: 0 4px 30px rgba(0,0,0,0.40), 0 2px 6px #fff;
-    margin-bottom: 0.14em;
-  }
-  .hero-sub {
-    font-size: 1.13rem;
-    color: #b4bbc7;
-    max-width: 480px;
-    margin: 0 auto 0.83em auto;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-  }
-  .center-wrap {
-    display: flex; gap: 40px; justify-content: center; align-items: flex-start; flex-wrap: wrap; width: 100%;
-  }
-  .glass-card {
-    background: rgba(20,20,23,0.96);
-    border-radius: 18px;
-    box-shadow: 0 10px 22px #000c, 0 0.5px 7px #fff2 inset;
-    border: 1.4px solid #282933;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    padding: 2.2rem 1.3rem 1.4rem 1.3rem;
-    margin: 0 0 18px 0;
-    min-width: 340px;
-    max-width: 420px;
-    color: #fff;
-    position:relative;
-  }
-  label {
-    font-weight: 800;
-    color: #fff;
-    padding-bottom: 0.15em;
-    display: block;
-    font-size: 1.16rem;
-    margin-top: 1.05rem;
-    letter-spacing: 0.01em;
-    text-shadow: 0 2px 12px #000a, 0 2px 4px #fff3;
-  }
-  input, select {
-    width: 100%;
-    background: #111316;
-    border: 1.5px solid #35363e;
-    color: #fff;
-    font-size: 1.13rem;
-    border-radius: 11px;
-    margin: 0.25em 0 0.8em 0;
-    padding: 0.8em 1.1em;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s, background 0.22s, color 0.22s;
-  }
-  input:focus, select:focus {
-    border-color: #888cff;
-    background: #191a21;
-    color: #fff;
-  }
-  button, .cta-btn {
-    font-family: 'Montserrat', 'Inter', Arial, sans-serif;
-    padding: 0.95em 2em;
-    border-radius: 11px;
-    border: none;
-    font-weight: 900;
-    font-size: 1.16rem;
-    margin: 1.1rem 0.7rem 0.0rem 0;
-    letter-spacing: 0.02em;
-    background: #fff;
-    color: #171a23;
-    box-shadow: 0 2px 24px #463df522;
-    transition: background 0.16s, color 0.19s, scale 0.19s;
-    cursor: pointer;
-  }
-  button:hover, .cta-btn:hover {
-    background: #e9eaff;
-    color: #000;
-    scale: 1.021;
-  }
-  #swapBtn {
-    background: #24252b;
-    color: #fff;
-    border: 1.2px solid #45465e;
-  }
-  #swapBtn:hover {
-    background:#3f3f47;
-    color: #fff;
-  }
-  .result {
-    background: rgba(44,47,64, 0.86);
-    color: #d0fff2;
-    border-radius: 11px;
-    padding: 1.07rem 0.55em;
-    font-size: 1.34rem;
-    font-weight: 900;
-    margin-top: 1em;
-    margin-bottom: 0.2em;
-    text-align: center;
-    box-shadow: 0 2px 19px #213666bb;
-    letter-spacing: 0.013em;
-  }
-  .meta {
-    margin: 0 auto 1.2em auto;
-    color: #c1cbe1;
-    background: rgba(18,20,28, 0.88);
-    border-radius: 8px;
-    font-size: 1rem;
-    padding: 0.72rem 1em;
-    max-width: 90%;
-    text-align: center;
-  }
-  #dashboardSection { margin-top: 1.2em; }
-  #dashboardSection h2 {font-size:1.05rem;color:#fff;margin-bottom:0.6em;}
-  #historyList {color:#bfffd9;margin:0 0 1.1rem 0;font-size:1.01rem;}
-  .glass-card canvas { background:#181b23; border-radius: 10px; margin-bottom:0.93em; margin-top:0.29em;}
-  .cards-row {
-    display: flex;
-    gap: 22px;
-    justify-content: center;
-    align-items: stretch;
-    margin: 36px auto 0 auto;
-    max-width: 1180px;
-  }
-  .card {
-    flex: 1 1 0%;
-    background: rgba(18,18,18,0.96);
-    border-radius: 14px;
-    backdrop-filter: blur(11px);
-    box-shadow: 0 3px 9px #000c, 0 0.5px 2px #fff1 inset;
-    border: 1.1px solid #232233;
-    color: #fff;
-    padding: 2em 1.2em 1.11em 1.2em;
-    margin-bottom: 0.5em;
-    display: flex; flex-direction: column; align-items: flex-start;
-    font-size: 1.11rem;
-  }
-  .card-title {
-    font-size: 1.23rem;
-    margin-bottom: 0.58em;
-    font-weight: 900;
-    color: #fff;
-  }
-  .card-list, .answers {
-    padding: 0 0 1.15em 1.1em;
-    color: #cbcbcb;
-    font-size: 1.06rem;
-    line-height: 1.7;
-  }
-  .cards-row .card:not(:last-child) { margin-right: .5rem;}
-  .answers { font-size: 0.99rem; font-weight: 400;}
-  footer {
-    margin: 2.5rem auto 1.2rem auto;
-    text-align: center;
-    color: #5bbcf0;
-    font-size: 1.10rem;
-    opacity: 0.82;
-    letter-spacing: 0.06em;
-  }
-  @media (max-width: 1200px) {.center-wrap{gap: 18px;}}
-  @media (max-width: 900px) {.center-wrap{flex-direction:column;align-items:center;gap:10px;}.glass-card{max-width:99vw;}}
-  @media (max-width: 700px) {.glass-card{min-width:98vw;max-width:99vw;} .cards-row{flex-direction:column;max-width:99vw;gap:0.39em;}}
+  .hero { text-align: center; margin: 52px auto 20px auto; }
+  .hero-title { font-family: 'Montserrat', Arial, sans-serif; font-size: clamp(2.3rem,6vw,3.8rem); font-weight: 900; color:#fff; margin-bottom: 0.15em;}
+  .hero-sub { color: #b4bbc7; margin-bottom:1.2em; font-size:1.13rem;}
+  .dashboard-row { display: flex; gap: 38px; justify-content:center; margin-bottom:52px;}
+  .glass-card { background: rgba(20,20,23,0.95); border-radius:18px; box-shadow: 0 10px 22px #000c; border: 1.4px solid #282933; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); padding:2rem 1.3rem 1.2rem 1.3rem; min-width:330px; max-width:400px; color:#fff; position:relative; }
+  label { font-weight:800; color:#fff; font-size:1.13rem; margin-top:1.09rem; text-shadow: 0 2px 6px #0009;}
+  input,select{width:100%;background:#111316;color:#fff;font-size:1.13rem;border-radius:11px;margin:0.25em 0 0.8em 0;padding:0.8em 1.1em;border:1.6px solid #35363e;}
+  button {padding:0.93em 2em;border-radius:11px;border:none;font-weight:900;font-size:1.14rem;margin:1.1rem 0.7rem 0 0;letter-spacing:0.02em;background:#fff;color:#28293d;box-shadow:0 2px 24px #153bd622;cursor:pointer;}
+  #swapBtn { background: #24252b; color: #fff; border: 1.2px solid #45465e; }
+  .live-rates-card { background:rgba(18,20,28,0.93);border-radius:16px;padding:1.85rem 1.3rem;min-width:230px;}
+  .live-rates-list {list-style:none;margin:0;padding:0;}
+  .live-rate-row {display:flex;align-items:center;justify-content:space-between;font-size:1.18rem;font-weight:700;padding:0.22em 0;}
+  .rate-label {color:#b8fff0;}
+  .rate-value {color:#9ffbcf;font-family:monospace;}
+  footer { color:#5bbcf0;font-size:1.12rem;margin:2em auto 1em auto;text-align:center;opacity:.82;}
+  @media(max-width:900px){.dashboard-row{flex-direction:column;gap:18px;}}
   </style>
 </head>
 <body>
   <div class="hero">
     <div class="hero-title">Currency Converter</div>
-    <div class="hero-sub">Convert global currencies, view analytics, and track your conversions. Minimal, fast, and beautifully crafted.</div>
+    <div class="hero-sub">Convert and track the world's major currencies. Minimal. Fast. Always up-to-date.</div>
   </div>
-  <div class="glass-card" id="liveRateCard" style="min-width:320px; max-width:450px; text-align:center; margin: 0 auto 2em auto;">
-    <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5em;">Live Rate</div>
-    <div style="font-size:2.2rem;font-weight:900;color:#98ffe5;margin:0.4em 0;" id="liveRateValue">--</div>
-    <div id="liveRateMeta" style="font-size:.97rem;color:#b7bfc7;margin-top:.5em"></div>
-  </div>
-  <div class="center-wrap">
-    <div class="glass-card" style="flex:2;">
+  <div class="dashboard-row">
+    <!-- Left: Converter -->
+    <div class="glass-card">
       <form id="convertForm" autocomplete="off" onsubmit="return false;">
         <label for="amount">Amount</label>
         <input id="amount" type="number" value="1" step="any" aria-label="Amount to convert" tabindex="0" required />
@@ -225,28 +57,21 @@
       </form>
       <div class="result" id="resultArea" aria-live="polite"></div>
       <div class="meta" id="metaArea"></div>
+      <div id="dashboardSection" style="display:none;" aria-label="Conversion history and dashboard section">
+        <h2 style="font-size:1.08rem;color:#b7ffe0;margin:.9em 0 0.4em 0;">Your Conversion History</h2>
+        <ul id="historyList"></ul>
+        <canvas id="historyChart" height="100"></canvas>
+      </div>
     </div>
-    <div class="glass-card" style="flex:2;">
-      <div style="font-size:1.12rem;font-weight:900;color:#fff;margin-bottom:0.45em;">Most Used Pair: 1-Year History</div>
-      <canvas id="historyTrendChart" height="152"></canvas>
-      <div id="historyTrendMeta" style="font-size:1.1rem; color:#d5ffe2; margin-top:.8em;"></div>
-    </div>
-  </div>
-  <div class="cards-row" style="margin-bottom:1.9em;">
-    <div class="card">
-      <div class="card-title">How it Works</div>
-      <ol class="card-list">
-        <li>Enter your amount and pick currencies</li>
-        <li>Click <b>Convert</b></li>
-        <li>See instant results, full history, and analytics</li>
-      </ol>
-    </div>
-    <div class="card">
-      <div class="card-title">FAQ & Support</div>
-      <ul class="answers">
-        <li>Q: Do I need an account?<br/>A: No login required, ever!</li>
-        <li>Q: Will rates update?<br/>A: Yes, rates refresh live on every conversion.</li>
-        <li>Q: Is it free?<br/>A: Yes, and always will be.</li>
+    <!-- Right: Always-Up-To-Date Major Pairs -->
+    <div class="live-rates-card">
+      <div style="font-size:1.21rem;font-weight:900;margin-bottom:.7em;">Major Pairs — Live Values</div>
+      <ul class="live-rates-list" id="liveRatesList">
+        <li class="live-rate-row"><span class="rate-label">USD/EUR</span> <span class="rate-value" id="usd_eur">--</span></li>
+        <li class="live-rate-row"><span class="rate-label">USD/INR</span> <span class="rate-value" id="usd_inr">--</span></li>
+        <li class="live-rate-row"><span class="rate-label">EUR/INR</span> <span class="rate-value" id="eur_inr">--</span></li>
+        <li class="live-rate-row"><span class="rate-label">GBP/USD</span> <span class="rate-value" id="gbp_usd">--</span></li>
+        <li class="live-rate-row"><span class="rate-label">USD/JPY</span> <span class="rate-value" id="usd_jpy">--</span></li>
       </ul>
     </div>
   </div>
@@ -255,85 +80,31 @@
   </footer>
   <script src="/static/main.js"></script>
   <script>
-function getMostUsedPair() {
-  const history = JSON.parse(localStorage.getItem('currencyHistory') || '[]');
-  const pairs = {};
-  for (const item of history) {
-    const key = item.from + "_" + item.to;
-    pairs[key] = (pairs[key] || 0) + 1;
-  }
-  let max = 0, maxPair = ['INR', 'USD'];
-  for (const k in pairs)
-    if (pairs[k] > max) [max, maxPair] = [pairs[k], k.split('_')];
-  return maxPair;
-}
-// LIVE RATE for most-used pair
-async function fetchLivePairRate() {
-  const [from, to] = getMostUsedPair();
-  try {
-    const res = await fetch(`/api/convert?from=${from}&to=${to}&amount=1`);
-    const data = await res.json();
-    if (data && data.success && data.data && data.data.result) {
-      document.getElementById('liveRateValue').textContent =
-        `1 ${from} = ${Number(data.data.result).toFixed(3)} ${to}`;
-      document.getElementById('liveRateMeta').textContent =
-        `Last updated: ${new Date().toLocaleString()}`;
-    } else {
-      document.getElementById('liveRateValue').textContent = "--";
-      document.getElementById('liveRateMeta').textContent = "No data";
-    }
-  } catch (err) {
-    document.getElementById('liveRateValue').textContent = "--";
-    document.getElementById('liveRateMeta').textContent = "Error loading live rate";
-  }
-}
-fetchLivePairRate();
-setInterval(fetchLivePairRate, 120000);
-
-// 1 Year Most Used Trend Chart
-let chartInst = null;
-async function fetchHistoryTrend() {
-  const [from, to] = getMostUsedPair();
-  try {
-    const now = new Date();
-    const lastYear = new Date(now.getFullYear()-1, now.getMonth(), now.getDate());
-    const start = lastYear.toISOString().slice(0,10);
-    const end = now.toISOString().slice(0,10);
-    const url = `/api/history?from=${from}&to=${to}&start_date=${start}&end_date=${end}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data && data.success && data.data && data.data.rates) {
-      const dates = Object.keys(data.data.rates).sort();
-      const pts = dates.map(date=>data.data.rates[date][to]);
-      const ctx = document.getElementById('historyTrendChart').getContext('2d');
-      if (chartInst) chartInst.destroy();
-      chartInst = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: dates.map(d => d.slice(0,7)),
-          datasets: [{label:`${from}/${to} 1Y Trend`,data: pts,borderColor:"#90ffdc",backgroundColor:"rgba(60,255,215,0.042)",tension:0.14}]
-        },
-        options: {
-          responsive:true, plugins:{legend:{labels:{color:'#cee'}}},
-          scales:{
-            y:{beginAtZero:false,grid:{color:"#232333"},ticks:{color:"#b8ffe2"}},
-            x:{grid:{color:"#232333"},ticks:{color:"#bccfff",maxTicksLimit:7}}
-          }
+  // LIVE RATES MAJOR PAIRS
+  async function updateLiveRates(){
+    const pairs = [
+      ['USD','EUR','usd_eur'],
+      ['USD','INR','usd_inr'],
+      ['EUR','INR','eur_inr'],
+      ['GBP','USD','gbp_usd'],
+      ['USD','JPY','usd_jpy']
+    ];
+    for (let [from,to,id] of pairs){
+      try{
+        const r = await fetch(`/api/convert?from=${from}&to=${to}&amount=1`);
+        const j = await r.json();
+        if(j&&j.success&&j.data&&j.data.result){
+          document.getElementById(id).textContent=Number(j.data.result).toFixed(4);
+        }else{
+          document.getElementById(id).textContent='--';
         }
-      });
-      document.getElementById('historyTrendMeta').textContent =
-        `Trend for most used pair: ${from} → ${to}`;
+      }catch{
+        document.getElementById(id).textContent='--';
+      }
     }
-  } catch (e) {
-    document.getElementById('historyTrendMeta').textContent =
-      "No history data for this pair or error fetching data!";
   }
-}
-fetchHistoryTrend();
-// Update on conversion
-window.addEventListener('storage', fetchHistoryTrend);
-
-// OPTIONAL: update on every manual conversion as well (see main.js below).
+  updateLiveRates();
+  setInterval(updateLiveRates, 120000); // every 2min
   </script>
 </body>
 </html>
