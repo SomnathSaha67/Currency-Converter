@@ -74,6 +74,13 @@ async function populate() {
       } else {
         resultArea.textContent = `${amt} ${fr} = ${result} ${toCode}  (provider: ${provider})`;
       }
+      // Save conversion to history (FIXED: always after a successful result)
+      saveHistory({
+        amt, from, to, date,
+        result: (result !== undefined && result !== null)
+          ? (rate ? result.toFixed(6) : result)
+          : resultArea.textContent
+      });
     } catch (err) {
       resultArea.textContent = 'Error performing conversion.';
       metaArea.textContent = String(err);
@@ -143,20 +150,6 @@ document.getElementById('dashboardBtn').addEventListener('click', function() {
   const sect = document.getElementById('dashboardSection');
   sect.style.display = (sect.style.display === 'none' ? 'block' : 'none');
   if (sect.style.display === 'block') showDashboard();
-});
-
-document.getElementById('convertBtn').addEventListener('click', () => {
-  setTimeout(() => {
-    const res = document.getElementById('resultArea').textContent;
-    const from = document.getElementById('from').value;
-    const to = document.getElementById('to').value;
-    const amt = document.getElementById('amount').value;
-    const date = document.getElementById('date').value;
-    let resultNum = res.match(/= ([\d\.]+)/);
-    if (resultNum && resultNum[1]) {
-      saveHistory({ amt, from, to, date, result: resultNum[1] });
-    }
-  }, 430); // Give UI time to update
 });
 
 // --- Accessibility Enhancement ---
