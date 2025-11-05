@@ -15,7 +15,6 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 .container {
   width: 100%;
   max-width: 900px;
@@ -36,13 +35,11 @@ body {
   overflow: visible;
   animation: fadeIn 1.2s cubic-bezier(.13,.89,.49,1.11);
 }
-
 @keyframes fadeIn {
   0% { opacity: 0; transform: scale(0.96) translateY(36px);}
   80% { opacity: 1; transform: scale(1.04) translateY(-6px);}
   100% { opacity: 1; transform: scale(1) translateY(0);}
 }
-
 h1 {
   font-size: 2.8rem;
   font-weight: 900;
@@ -68,7 +65,6 @@ h1::after {
   opacity: 0.85;
   box-shadow: 0 2px 12px #6cd9ff88;
 }
-
 .row {
   display: flex;
   gap: 2.7rem;
@@ -76,7 +72,6 @@ h1::after {
   align-items: flex-start;
   width: 100%;
 }
-
 .col {
   flex: 1 1 0%;
   display: flex;
@@ -84,12 +79,10 @@ h1::after {
   min-width: 280px;
   max-width: 450px;
 }
-
 .form-section {
   min-width: 270px;
   max-width: 430px;
 }
-
 .result-section {
   min-width: 260px;
   max-width: 340px;
@@ -99,7 +92,6 @@ h1::after {
   gap: 1rem;
   margin-top: 0.9rem;
 }
-
 .section {
   width: 100%;
   margin: 0.36rem 0 0.03rem 0;
@@ -107,7 +99,6 @@ h1::after {
   border-bottom: 1.5px solid rgba(180,230,255,0.13);
   position: relative;
 }
-
 label {
   margin-top: 1.1rem;
   font-weight: 500;
@@ -118,7 +109,6 @@ label {
   font-size: 1.1rem;
   text-shadow: 0 2px 13px #0ae4fd33;
 }
-
 input[type="number"], input[type="date"], select {
   padding: 0.83rem 1.17rem;
   width: 100%;
@@ -143,7 +133,6 @@ input:focus, select:focus {
   outline: none;
   z-index: 2;
 }
-
 button {
   min-width: 130px;
   margin-top: 1rem;
@@ -186,7 +175,6 @@ button:hover, button:focus {
   transform: perspective(800px) rotateY(-10deg) scale(1.08);
   outline: none;
 }
-
 .result {
   margin-top: 0.7rem;
   font-size: 1.48rem;
@@ -213,7 +201,6 @@ button:hover, button:focus {
   transform: perspective(800px) rotateX(7deg) scale(1.025);
   box-shadow: 0 12px 40px #14dbff50;
 }
-
 .meta {
   color: #b9f5fd;
   font-size: 1.10rem;
@@ -227,7 +214,6 @@ button:hover, button:focus {
   box-shadow: 0 1.5px 14px #0590a518;
   max-width: 320px;
 }
-
 @media (max-width: 900px) {
   .container { max-width: 97vw; }
   .row { flex-direction: column; gap: 0.28rem;}
@@ -239,8 +225,8 @@ button:hover, button:focus {
   h1 { font-size: 1.29rem; }
   .result, .meta { font-size: 0.98rem; }
 }
-
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
@@ -249,28 +235,34 @@ button:hover, button:focus {
       <div class="col form-section">
         <div class="section">
           <label for="amount">Amount</label>
-          <input id="amount" type="number" value="1" step="any" />
+          <input id="amount" type="number" value="1" step="any" aria-label="Amount to convert" tabindex="0" required />
         </div>
         <div class="section">
           <label for="from">From</label>
-          <select id="from"></select>
+          <select id="from" aria-label="Convert from" tabindex="0"></select>
         </div>
         <div class="section">
           <label for="to">To</label>
-          <select id="to"></select>
+          <select id="to" aria-label="Convert to" tabindex="0"></select>
         </div>
         <div class="section">
           <label for="date">Date (optional)</label>
-          <input id="date" type="date" />
+          <input id="date" type="date" aria-label="Conversion date, optional" tabindex="0" />
         </div>
         <div>
-          <button id="convertBtn">Convert</button>
-          <button id="swapBtn">Swap</button>
+          <button id="convertBtn" tabindex="0" aria-label="Convert currencies">Convert</button>
+          <button id="swapBtn" tabindex="0" aria-label="Swap currencies">Swap</button>
+          <button id="dashboardBtn" tabindex="0" aria-label="Show dashboard">Dashboard</button>
         </div>
       </div>
       <div class="col result-section">
-        <div class="result" id="resultArea"></div>
+        <div class="result" id="resultArea" aria-live="polite"></div>
         <div class="meta" id="metaArea"></div>
+        <div id="dashboardSection" style="display:none;" aria-label="Conversion history and dashboard section">
+          <h2 style="font-size:1.15rem; margin:1.2rem 0 0.5rem; color:#92ffef;">Your Conversion History</h2>
+          <ul id="historyList" style="color:#cbeaff; margin:0 0 1.3rem 0; font-size:1.08rem;"></ul>
+          <canvas id="historyChart" height="160"></canvas>
+        </div>
       </div>
     </div>
   </div>
