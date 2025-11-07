@@ -8,37 +8,41 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="background-blur"></div>
   <div class="container">
-    <section class="left-pane">
-      <div class="headline">
-        A <span class="highlight">cheaper</span>, <span class="highlight2">faster</span> way to send money abroad
+    <!-- Centered top heading -->
+    <header class="main-header">
+      <h1>Currency Converter</h1>
+      <div class="sub-header">
+        <span class="tagline">A cheaper, <span class="tag-faster">faster</span> way to send money abroad</span><br>
+        <span class="desc">Convert any currency—minimal, instant, always updated.</span>
       </div>
-      <p class="subtitle">Convert any currency—minimal, instant, always updated.</p>
+    </header>
+    <main>
       <form id="convertForm" autocomplete="off" onsubmit="return false;">
-        <div class="input-flex">
-          <input id="amount" type="number" value="1" min="1" step="any" aria-label="Amount to convert" required placeholder="Amount" />
-          <select id="from" aria-label="Convert from"></select>
-          <button type="button" class="swap-btn" id="swapBtn" title="Swap Currencies">⇆</button>
-          <select id="to" aria-label="Convert to"></select>
+        <div class="input-row">
+          <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" />
+          <select id="from" aria-label="From currency"></select>
+          <button type="button" class="swap-btn" id="swapBtn" title="Swap">⇆</button>
+          <select id="to" aria-label="To currency"></select>
         </div>
-        <div class="input-flex">
-          <input id="date" type="date" aria-label="Conversion date, optional" />
+        <div class="input-row">
+          <input id="date" type="date" aria-label="Conversion date" placeholder="Date (optional)" />
           <button id="convertBtn" class="primary-btn">Convert</button>
         </div>
         <div id="errorArea" aria-live="assertive"></div>
       </form>
-    </section>
-    <section class="right-pane">
-      <div id="resultBox" class="conversion-result-pane">
+      <section id="resultBox">
         <div class="result" id="resultArea" aria-live="polite"></div>
         <div class="meta" id="metaArea"></div>
-      </div>
-    </section>
+      </section>
+      <section id="providerBox">
+        <div id="providerArea"></div>
+      </section>
+    </main>
+    <footer>
+      Built by Somnath Saha | Minimal design, 2025
+    </footer>
   </div>
-  <footer>
-    Built by Somnath Saha | Minimal design, 2025
-  </footer>
   <script src="/static/main.js"></script>
 </body>
 </html>

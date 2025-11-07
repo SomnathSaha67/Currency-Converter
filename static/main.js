@@ -16,12 +16,15 @@ async function populate() {
   const metaArea = document.getElementById('metaArea');
   const dateEl = document.getElementById('date');
   const errorEl = document.getElementById('errorArea');
+  const providerArea = document.getElementById('providerArea');
+
   resultArea.textContent = 'Loading currencies…';
   try {
     const data = await fetchSymbols();
     if (!data.success) {
       resultArea.textContent = 'Failed to load currencies: ' + (data.error || 'unknown');
       metaArea.textContent = JSON.stringify(data.detail || {});
+      providerArea.textContent = "";
       return;
     }
     const symbols = data.symbols;
@@ -36,10 +39,12 @@ async function populate() {
     fromEl.value = 'USD' in symbols ? 'USD' : codes[0];
     toEl.value = 'EUR' in symbols ? 'EUR' : (codes.length > 1 ? codes[1] : codes[0]);
     resultArea.textContent = '';
-    metaArea.textContent = 'Provider: ' + data.provider;
+    metaArea.textContent = '';
+    providerArea.textContent = "Provider: " + data.provider;
   } catch (err) {
     resultArea.textContent = 'Network or server error while loading currencies.';
     metaArea.textContent = String(err);
+    providerArea.textContent = "";
   }
 
   document.getElementById('convertBtn').addEventListener('click', async () => {
@@ -63,6 +68,7 @@ async function populate() {
       const j = await r.json();
       if (!j.success) {
         resultArea.textContent = 'Conversion failed: ' + (j.error || 'unknown');
+        providerArea.textContent = '';
         return;
       }
       const provider = j.provider || (j.data && j.data.provider) || '';
@@ -80,7 +86,6 @@ async function populate() {
           </div>
           <div class="result-rate">
             Rate: 1 ${fr} = ${rate.toFixed(6)} ${toCode}
-            <span class="provider">(provider: ${provider})</span>
           </div>
         `;
         metaArea.innerHTML = "";
@@ -88,13 +93,14 @@ async function populate() {
         resultArea.innerHTML = `
           <div class="result-main">
             ${amt} ${fr} = ${result} ${toCode}
-            <span class="provider">(provider: ${provider})</span>
           </div>`;
         metaArea.innerHTML = "";
       }
+      providerArea.textContent = "Provider: " + provider;
     } catch (err) {
       resultArea.textContent = 'Error performing conversion.';
       metaArea.textContent = String(err);
+      providerArea.textContent = "";
     }
   });
 
@@ -105,7 +111,7 @@ async function populate() {
   });
 }
 
-// Accessibility: Enter shortcut for controls
+// Accessibility: Enter-key shortcut for controls
 ['amount','from','to','date','convertBtn','swapBtn'].forEach(id=>{
   const el = document.getElementById(id);
   if (el) el.addEventListener('keypress',e=>{
