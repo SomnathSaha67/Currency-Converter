@@ -1,106 +1,108 @@
-# Simple Currency Converter (Flask web app)
+***
 
-A minimal, beginner-friendly Flask web application for real-time and historical currency conversion, using robust public exchange-rate providers.
+# Currency Converter
+
+A minimal, modern web currency converter built with Flask and vanilla JavaScript. Convert currencies instantly, with real-time and historical rates, all from a single, visible screen. High-contrast, no-scroll interface—designed for clarity and ease of use.
+
+***
 
 ## Features
 
-- Real-time and historical conversion (any major currency, any date available)
-- Swap and instantly reverse currency direction
-- Provider fallback (frankfurter.app and exchangerate.host)
-- **Modern, responsive UI:**  
-  - Conversion result in a glass card below the form  
-  - Major pairs live rates at a glance  
-  - Dashboard/history toggle card
-- Docker & cloud ready (Render, Railway, Heroku support)
-- Attribution for data sources always shown to users
+- **Instant conversion** for all major world currencies  
+- **Real-time and historical rates** (choose any date)  
+- **No-scroll, single-screen layout** for maximum usability  
+- **Modern responsive UI:**  
+  - Centered bold title and tagline  
+  - Clean, high-visibility input row and result display  
+  - Swap currencies instantly  
+  - Shows data provider for transparency  
+- **100% browser-based UI**—no external UI libraries, just CSS  
+- **Provider fallback** (Frankfurter & exchangerate.host) for reliability
 
-## Folder & File Overview
+***
 
-| File/Folder            | Purpose                          |
-|------------------------|----------------------------------|
-| app.py                 | Flask backend and API logic      |
-| templates/index.html   | Frontend HTML & styles           |
-| static/main.js         | Frontend JS (conversions/UI)     |
-| requirements.txt       | Python dependencies              |
-| Dockerfile, Procfile   | Deployment configuration         |
-| .gitignore             | Exclusions for repo/venv/tmp     |
+## File Structure
 
-## Quick Local Setup
+| File/Folder             | Purpose                                |
+|-------------------------|----------------------------------------|
+| `app.py`                | Flask backend and API logic            |
+| `templates/index.html`  | HTML UI (no dashboards, just converter)|
+| `static/style.css`      | Custom modern styling, high contrast   |
+| `static/main.js`        | UI interactivity and conversion logic  |
+| `requirements.txt`      | Python package dependencies            |
+| `Dockerfile`            | For containerized deployment           |
+| `Procfile`              | For platforms like Heroku/Render       |
 
-1. **Clone repository:**
-git clone https://github.com/SomnathSaha67/Currency-Converter.git
-cd Currency-Converter
+***
 
-2. **Create & activate virtual environment:**
-- macOS/Linux:
-  ```
+## Quick Setup
+
+### 1. Clone the Repository
+```sh
+git clone https://github.com/your-username/currency-converter.git
+cd currency-converter
+```
+
+### 2. Create and Activate a Virtual Environment
+- **macOS/Linux:**
+  ```sh
   python3 -m venv venv
   source venv/bin/activate
   ```
-- Windows:
-  ```
+- **Windows:**
+  ```sh
   python -m venv venv
-  .\venv\Scripts\Activate.ps1
+  .\venv\Scripts\activate
   ```
 
-3. **Install dependencies:**
+### 3. Install Dependencies
+```sh
 pip install -r requirements.txt
+```
 
-4. **Run the app:**
+### 4. Run the App
+```sh
 python app.py
+```
+Visit [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 
-5. **Visit:** [http://127.0.0.1:5000](http://127.0.0.1:5000/)
+***
 
 ## API Endpoints
 
-- **GET `/api/symbols`**  
-Returns all supported currencies, and provider name.
-- **GET `/api/convert?from=USD&to=EUR&amount=100[&date=YYYY-MM-DD]`**  
-Returns conversion (current or by date).
+- **GET `/api/symbols`** – List all supported currencies, including description and data provider.
+- **GET `/api/convert?from=USD&to=EUR&amount=100[&date=YYYY-MM-DD]`** – Convert between currencies, with optional historical date.
 
-Example JSON:
-{
-"success": true,
-"provider": "frankfurter.app",
-"data": {
-"query": { "from": "USD", "to": "INR", "amount": 100 },
-"info": { "rate": 88.71 },
-"result": 8871.00
-}
-}
+***
 
-Examples:
-- List currencies:  
-`curl "http://127.0.0.1:5000/api/symbols"`
-- Convert:  
-`curl "http://127.0.0.1:5000/api/convert?from=USD&to=EUR&amount=100"`
+## Deployment
 
-## Deploy with Docker
+**Docker:**
+- Build:  
+  `docker build -t currency-converter .`
+- Run:  
+  `docker run -p 5000:5000 currency-converter`
 
-- **Build:**  
-`docker build -t currency-converter .`
-- **Run:**  
-`docker run -p 5000:5000 currency-converter`
+**PaaS (Render, Railway, Heroku):**
+- Provision a Python service, set `requirements.txt`, `Procfile`, and your environment variables if needed.
+- Use `web: gunicorn app:app --bind 0.0.0.0:$PORT` in the `Procfile`.
 
-## Troubleshooting
+***
 
-- If dependencies break:  
-`pip install -r requirements.txt`
-- Blank frontend? Check browser DevTools and try curl to backend.
-- API provider error? Try again later or different network.
-
-## Attribution
+## Attributions
 
 Rates/data:  
 - [frankfurter.app](https://www.frankfurter.app/)  
 - [exchangerate.host](https://exchangerate.host/)
 
-## Next Steps & Future Ideas
+***
 
-- Add exchange rate charts (Chart.js/Plotly)
-- User alert if rate meets a threshold
-- Save favorites/conversion history
-- Full mobile/PWA support
-- UI/branding upgrades and testing
+## Suggestions & Next Steps
 
-**Pull requests and suggestions welcome!**
+- Add dark/light mode or custom accent colors for your brand
+- Optionally expand to show trending pairs or favorites
+- Mobile-first refinements always welcome
+
+***
+
+**Built by Somnath Saha | Minimal, visible, and lightning-fast.**
