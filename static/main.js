@@ -15,7 +15,6 @@ async function populate() {
   const resultArea = document.getElementById('resultArea');
   const metaArea = document.getElementById('metaArea');
   const dateEl = document.getElementById('date');
-
   resultArea.textContent = 'Loading currencies…';
   try {
     const data = await fetchSymbols();
@@ -41,14 +40,23 @@ async function populate() {
     resultArea.textContent = 'Network or server error while loading currencies.';
     metaArea.textContent = String(err);
   }
-
+  
+  // Conversion handler
   document.getElementById('convertBtn').addEventListener('click', async () => {
     const from = fromEl.value;
     const to = toEl.value;
     const amount = amountEl.value || '1';
     const date = dateEl.value;
+    const errorEl = document.getElementById('errorArea');
     resultArea.textContent = 'Converting…';
     metaArea.textContent = '';
+    errorEl.textContent = '';
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      errorEl.textContent = "Please enter a valid, positive amount for conversion.";
+      amountEl.focus();
+      resultArea.textContent = '';
+      return;
+    }
     try {
       let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`;
       if (date) url += `&date=${encodeURIComponent(date)}`;
@@ -56,7 +64,6 @@ async function populate() {
       const j = await r.json();
       if (!j.success) {
         resultArea.textContent = 'Conversion failed: ' + (j.error || 'unknown');
-        metaArea.textContent = '';
         return;
       }
       const provider = j.provider || (j.data && j.data.provider) || '';
@@ -68,116 +75,43 @@ async function populate() {
       const rate = data.info && data.info.rate ? data.info.rate : null;
       if (rate !== null) {
         resultArea.innerHTML = `
-          <div style="font-size:1.22em;font-weight:900;letter-spacing:0.01em;margin-bottom:9px;">
+          <div class="result-main">
             ${amt} ${fr} = ${result.toFixed(6)} ${toCode}
           </div>
-          <div style="font-size:.97em;font-weight:400;line-height:1.21;color:#70ffee;">
+          <div class="result-rate">
             Rate: 1 ${fr} = ${rate.toFixed(6)} ${toCode}
-            <span style="color:#79aec0;font-size:.95em;">(provider: ${provider})</span>
+            <span class="provider">(provider: ${provider})</span>
           </div>
         `;
         metaArea.innerHTML = "";
       } else {
         resultArea.innerHTML = `
-          <div style="font-size:1.18em;font-weight:900;">
+          <div class="result-main">
             ${amt} ${fr} = ${result} ${toCode}
-            <span style="font-size:.98em;color:#89c9f0;">(provider: ${provider})</span>
+            <span class="provider">(provider: ${provider})</span>
           </div>`;
         metaArea.innerHTML = "";
       }
-      saveHistory({
-        amt, from, to, date,
-        result: (result !== undefined && result !== null)
-          ? (rate ? result.toFixed(6) : result)
-          : resultArea.textContent
-      });
     } catch (err) {
       resultArea.textContent = 'Error performing conversion.';
       metaArea.textContent = String(err);
     }
   });
 
+  // Swap currencies
   document.getElementById('swapBtn').addEventListener('click', () => {
     const tmp = fromEl.value;
     fromEl.value = toEl.value;
     toEl.value = tmp;
   });
 }
-populate();
 
-// --- History/Dashboard ---
-function saveHistory(record) {
-  const key = 'currencyHistory';
-  const history = JSON.parse(localStorage.getItem(key)) || [];
-  history.unshift(record);
-  if (history.length > 15) history.length = 15;
-  localStorage.setItem(key, JSON.stringify(history));
-}
-function loadHistory() {
-  return JSON.parse(localStorage.getItem('currencyHistory')) || [];
-}
-function showDashboard() {
-  const listEl = document.getElementById('historyList');
-  const history = loadHistory();
-  listEl.innerHTML = '';
-  if (!history.length) {
-    listEl.innerHTML = "<li>No conversions yet.</li>";
-    if (window.dashboardChart) window.dashboardChart.destroy();
-    return;
-  }
-  for (const item of history) {
-    const li = document.createElement('li');
-    li.textContent = `${item.amt} ${item.from} → ${item.to} = ${item.result} (${item.date || 'latest'})`;
-    listEl.appendChild(li);
-  }
-  // --- Chart favorites
-  const pairs = {};
-  for (const item of history) {
-    const pair = item.from + "→" + item.to;
-    pairs[pair] = (pairs[pair] || 0) + 1;
-  }
-  if (window.dashboardChart) window.dashboardChart.destroy();
-  const ctx = document.getElementById('historyChart').getContext('2d');
-  window.dashboardChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(pairs),
-      datasets: [{
-        label: "Most Used Pairs",
-        data: Object.values(pairs),
-        backgroundColor: "rgba(76,255,208,0.37)",
-        borderColor: "rgba(70,200,220,0.8)",
-        borderWidth: 1.5,
-      }]
-    },
-    options: {scales: {y:{beginAtZero:true, ticks:{color:'#b8faff'}}}, plugins:{legend:{labels:{color:'#b2f4e3'}}}}
-  });
-}
-
-document.getElementById('dashboardBtn').addEventListener('click', function() {
-  const sect = document.getElementById('dashboardSection');
-  if (!sect) return;
-  sect.style.display = (sect.style.display === 'none' ? 'block' : 'none');
-  if (sect.style.display === 'block') showDashboard();
-});
-
-// --- Accessibility Enhancement ---
-['amount','from','to','date','convertBtn','swapBtn','dashboardBtn'].forEach(id=>{
+// Accessibility Enter-key shortcut for all main controls
+['amount','from','to','date','convertBtn','swapBtn'].forEach(id=>{
   const el = document.getElementById(id);
   if (el) el.addEventListener('keypress',e=>{
     if(e.key==="Enter" || e.keyCode===13){el.click();}
   });
 });
-let errorEl = document.createElement('div');
-errorEl.id = "errorArea"; errorEl.setAttribute("aria-live", "assertive");
-document.body.appendChild(errorEl);
-document.getElementById('convertBtn').addEventListener('click', ()=>{
-  const amt = document.getElementById('amount').value;
-  if (!amt || isNaN(Number(amt)) || Number(amt)<=0) {
-    errorEl.textContent = "Please enter a valid, positive amount for conversion.";
-    document.getElementById('amount').focus();
-  } else {
-    errorEl.textContent = "";
-  }
-});
 
+document.addEventListener('DOMContentLoaded', populate);

@@ -1,0 +1,232 @@
+body, html {
+  min-height: 100vh;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: #0d1016;
+  color: #fff;
+}
+.background-glass {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 60% 35%, #244f6e80 0%, #239fe7ad 30%, #060617 71%);
+  filter: blur(4px);
+  pointer-events: none;
+}
+.main-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3vw;
+  margin-top: 8vh;
+  z-index: 1;
+  position: relative;
+}
+.converter-card {
+  background: rgba(20,20,24,0.91);
+  border-radius: 22px;
+  box-shadow: 0 12px 38px #01142e44, 0 1.5px 7px #42b7f612 inset;
+  border: 1.4px solid #27364f3a;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 2.3rem 2.1rem 1.6rem 2.1rem;
+  min-width: 340px;
+  max-width: 430px;
+  color: #fff;
+  position: relative;
+}
+.converter-header {
+  text-align: center;
+  margin-bottom: 1.45em;
+}
+.headline {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.19em;
+  margin-bottom: .12em;
+}
+.headline .accent {
+  color: #70ffe2;
+  letter-spacing: 0.015em;
+}
+.subtitle {
+  color: #b4bbc7;
+  font-size: 1.13rem;
+  margin-bottom: 1.1em;
+}
+.input-row {
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  gap: 0.8em;
+  margin-bottom: 0.9em;
+}
+.input-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+label {
+  font-weight: 800;
+  color: #c7fac7;
+  font-size: 1.06rem;
+  margin-bottom: 0.38em;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 6px #053a7a32;
+}
+input, select {
+  width: 100%;
+  background: #101014;
+  color: #d6f3e2;
+  font-size: 1.18rem;
+  border-radius: 11px;
+  padding: 0.78em 1em;
+  border: 1.3px solid #215b5e48;
+  margin-bottom: 0.07em;
+  outline: none;
+  font-family: inherit;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.primary-btn {
+  padding: 0.95em 2.4em;
+  border-radius: 12px;
+  border: none;
+  font-weight: 900;
+  font-size: 1.18rem;
+  background: linear-gradient(90deg, #88ffe9 0%, #769fff 100%);
+  color: #28293d;
+  box-shadow: 0 2px 24px #0baff472, 0 1.2px 4px #193cb422;
+  cursor: pointer;
+}
+.swap-btn {
+  background: #24252b;
+  color: #75bafd;
+  border: 1.2px solid #45465e;
+  font-size: 1.68em;
+  line-height: 0.89em;
+  border-radius: 10px;
+  padding: 0.38em 0.54em;
+  margin-top: 1.6em;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #102d2f33;
+  transition: background 0.18s;
+}
+.swap-btn:hover {
+  background: #1c3d45;
+}
+#resultBox {
+  border-radius: 15px;
+  box-shadow: 0 3px 20px #90f2ffc7,0 1.5px 7px #3875f422 inset;
+  border: 1.3px solid #16323338;
+  background: rgba(31,38,49,0.90);
+  width: 100%;
+  margin: 1.1em 0 1.5em 0;
+  padding: 1.0em 1.2em;
+  min-height: 62px;
+  text-align: center;
+  font-size: 1.08em;
+}
+.result-main {
+  font-size: 1.31em;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  margin-bottom: 7px;
+}
+.result-rate {
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.21;
+  color: #70ffee;
+}
+.provider {
+  color: #79aec0;
+  font-size: 0.97em;
+  margin-left: 8px;
+}
+#metaArea {
+  margin-top: 0.13em;
+  color: #b2e2ff;
+  font-size: 1.01em;
+}
+#errorArea {
+  color: #ffe7b4;
+  font-size: 1.09em;
+  margin-top: -0.62em;
+  min-height: 24px;
+}
+
+.live-rates-card {
+  background: rgba(18, 20, 28, 0.91);
+  border-radius: 18px;
+  padding: 1.5rem 1.0rem 1.1rem 1.0rem;
+  min-width: 236px;
+  color: #fff;
+  box-shadow: 0 10px 22px #04617119;
+  margin-left: 2vw;
+}
+.live-rates-title {
+  font-size: 1.18rem;
+  font-weight: 900;
+  margin-bottom: .7em;
+  color: #76fff2;
+}
+.live-rates-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.live-rate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.19rem;
+  font-weight: 700;
+  padding: 0.22em 0;
+  border-bottom: 1px solid #1b293d38;
+}
+.live-rate-row:last-child { border-bottom: none; }
+.rate-label {
+  color: #b8fff0;
+}
+.rate-value {
+  color: #9ffbcf;
+  font-family: monospace;
+}
+
+footer {
+  color: #5bbcf0;
+  font-size: 1.10rem;
+  margin: 2.7em auto 1em auto;
+  text-align: center;
+  opacity: .82;
+  z-index: 2;
+}
+@media (max-width: 900px) {
+  .main-content {
+    flex-direction: column;
+    gap: 22px;
+    align-items: center;
+    margin-top: 4vh;
+  }
+  .live-rates-card {
+    margin-left: 0;
+    min-width: 200px;
+    width: 96vw;
+    max-width: 410px;
+  }
+  .converter-card {
+    min-width: unset;
+    max-width: 99vw;
+    width: 97vw;
+    margin: 0 auto;
+    padding: 1.1rem 0.5rem 1.3rem 0.5rem;
+  }
+}
