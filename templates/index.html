@@ -8,84 +8,37 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="background-glass"></div>
-  <main class="main-content">
-    <section class="converter-card">
-      <div class="converter-header">
-        <h1 class="headline">A cheaper, <span class="accent">faster</span> way<br>to send money abroad.</h1>
-        <p class="subtitle">Convert and track the world's major currencies. Minimal. Fast. Always up-to-date.</p>
+  <div class="background-blur"></div>
+  <div class="container">
+    <section class="left-pane">
+      <div class="headline">
+        A <span class="highlight">cheaper</span>, <span class="highlight2">faster</span> way to send money abroad
       </div>
+      <p class="subtitle">Convert any currency—minimal, instant, always updated.</p>
       <form id="convertForm" autocomplete="off" onsubmit="return false;">
-        <div class="input-row">
-          <div class="input-block">
-            <label for="amount">You Send</label>
-            <input id="amount" type="number" value="1" step="any" aria-label="Amount to convert" tabindex="0" required />
-          </div>
-          <div class="input-block">
-            <label for="from">From</label>
-            <select id="from" aria-label="Convert from" tabindex="0"></select>
-          </div>
+        <div class="input-flex">
+          <input id="amount" type="number" value="1" min="1" step="any" aria-label="Amount to convert" required placeholder="Amount" />
+          <select id="from" aria-label="Convert from"></select>
           <button type="button" class="swap-btn" id="swapBtn" title="Swap Currencies">⇆</button>
-          <div class="input-block">
-            <label for="to">To</label>
-            <select id="to" aria-label="Convert to" tabindex="0"></select>
-          </div>
+          <select id="to" aria-label="Convert to"></select>
         </div>
-        <div class="input-row">
-          <div class="input-block">
-            <label for="date">Date (optional)</label>
-            <input id="date" type="date" aria-label="Conversion date, optional" tabindex="0" />
-          </div>
+        <div class="input-flex">
+          <input id="date" type="date" aria-label="Conversion date, optional" />
           <button id="convertBtn" class="primary-btn">Convert</button>
         </div>
+        <div id="errorArea" aria-live="assertive"></div>
       </form>
-      <div id="resultBox">
+    </section>
+    <section class="right-pane">
+      <div id="resultBox" class="conversion-result-pane">
         <div class="result" id="resultArea" aria-live="polite"></div>
         <div class="meta" id="metaArea"></div>
       </div>
-      <div id="errorArea" aria-live="assertive"></div>
     </section>
-    <aside class="live-rates-card">
-      <div class="live-rates-title">Major Pairs — Live Values</div>
-      <ul class="live-rates-list" id="liveRatesList">
-        <li class="live-rate-row"><span class="rate-label">USD/EUR</span> <span class="rate-value" id="usd_eur">--</span></li>
-        <li class="live-rate-row"><span class="rate-label">USD/INR</span> <span class="rate-value" id="usd_inr">--</span></li>
-        <li class="live-rate-row"><span class="rate-label">EUR/INR</span> <span class="rate-value" id="eur_inr">--</span></li>
-        <li class="live-rate-row"><span class="rate-label">GBP/USD</span> <span class="rate-value" id="gbp_usd">--</span></li>
-        <li class="live-rate-row"><span class="rate-label">USD/JPY</span> <span class="rate-value" id="usd_jpy">--</span></li>
-      </ul>
-    </aside>
-  </main>
+  </div>
   <footer>
-    Built by Somnath Saha | Designed minimal for 2025
+    Built by Somnath Saha | Minimal design, 2025
   </footer>
   <script src="/static/main.js"></script>
-  <script>
-  // LIVE RATES MAJOR PAIRS (keep this, as before)
-  async function updateLiveRates(){
-    const pairs = [
-      ['USD','EUR','usd_eur'],
-      ['USD','INR','usd_inr'],
-      ['EUR','INR','eur_inr'],
-      ['GBP','USD','gbp_usd'],
-      ['USD','JPY','usd_jpy']
-    ];
-    for (let [from,to,id] of pairs){
-      try{
-        const r = await fetch(`/api/convert?from=${from}&to=${to}&amount=1`);
-        const j = await r.json();
-        if(j&&j.success&&j.data&&j.data.result){
-          document.getElementById(id).textContent=Number(j.data.result).toFixed(4);
-        }else{
-          document.getElementById(id).textContent='--';
-        }
-      }catch{
-        document.getElementById(id).textContent='--';
-      }
-    }
-  }
-  updateLiveRates();
-  setInterval(updateLiveRates, 120000); // every 2min
-  </script>
 </body>
 </html>

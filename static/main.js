@@ -15,6 +15,7 @@ async function populate() {
   const resultArea = document.getElementById('resultArea');
   const metaArea = document.getElementById('metaArea');
   const dateEl = document.getElementById('date');
+  const errorEl = document.getElementById('errorArea');
   resultArea.textContent = 'Loading currencies…';
   try {
     const data = await fetchSymbols();
@@ -40,14 +41,12 @@ async function populate() {
     resultArea.textContent = 'Network or server error while loading currencies.';
     metaArea.textContent = String(err);
   }
-  
-  // Conversion handler
+
   document.getElementById('convertBtn').addEventListener('click', async () => {
     const from = fromEl.value;
     const to = toEl.value;
     const amount = amountEl.value || '1';
     const date = dateEl.value;
-    const errorEl = document.getElementById('errorArea');
     resultArea.textContent = 'Converting…';
     metaArea.textContent = '';
     errorEl.textContent = '';
@@ -73,6 +72,7 @@ async function populate() {
       const toCode = data.query && data.query.to ? data.query.to : to;
       const result = data.result;
       const rate = data.info && data.info.rate ? data.info.rate : null;
+
       if (rate !== null) {
         resultArea.innerHTML = `
           <div class="result-main">
@@ -98,7 +98,6 @@ async function populate() {
     }
   });
 
-  // Swap currencies
   document.getElementById('swapBtn').addEventListener('click', () => {
     const tmp = fromEl.value;
     fromEl.value = toEl.value;
@@ -106,12 +105,11 @@ async function populate() {
   });
 }
 
-// Accessibility Enter-key shortcut for all main controls
+// Accessibility: Enter shortcut for controls
 ['amount','from','to','date','convertBtn','swapBtn'].forEach(id=>{
   const el = document.getElementById(id);
   if (el) el.addEventListener('keypress',e=>{
     if(e.key==="Enter" || e.keyCode===13){el.click();}
   });
 });
-
 document.addEventListener('DOMContentLoaded', populate);
