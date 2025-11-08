@@ -140,10 +140,11 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #6bfcbc;
 }
 .result-rate {
-  font-size: 0.99em;
+ font-size: 0.99em;
   font-weight: 500;
-  color: #4773fa;
+  color: var(--accent1);
   margin-bottom: 0.21em;
+  text-shadow: 0 1px 4px #1b2333, 0 0px 1px #222432;
 }
 .meta {
   color: #b2e2ff;
