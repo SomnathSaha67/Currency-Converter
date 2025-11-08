@@ -1,48 +1,54 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Currency Converter</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,700,900|Montserrat:700&display=swap">
-  <link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8" />
+  <title>Currency Converter</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,700,900|Montserrat:700&display=swap">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="container">
-    <!-- Centered top heading -->
-    <header class="main-header">
-      <h1>Currency Converter</h1>
-      <div class="sub-header">
-        <span class="tagline">A cheaper, <span class="tag-faster">faster</span> way to send money abroad</span><br>
-        <span class="desc">Convert any currency—minimal, instant, always updated.</span>
-      </div>
-    </header>
-    <main>
-      <form id="convertForm" autocomplete="off" onsubmit="return false;">
-        <div class="input-row">
-          <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" />
-          <select id="from" aria-label="From currency"></select>
-          <button type="button" class="swap-btn" id="swapBtn" title="Swap">⇆</button>
-          <select id="to" aria-label="To currency"></select>
-        </div>
-        <div class="input-row">
-          <input id="date" type="date" aria-label="Conversion date" placeholder="Date (optional)" />
-          <button id="convertBtn" class="primary-btn">Convert</button>
-        </div>
-        <div id="errorArea" aria-live="assertive"></div>
-      </form>
-      <section id="resultBox">
-        <div class="result" id="resultArea" aria-live="polite"></div>
-        <div class="meta" id="metaArea"></div>
-      </section>
-      <section id="providerBox">
-        <div id="providerArea"></div>
-      </section>
-    </main>
-    <footer>
-      Built by Somnath Saha | Minimal design, 2025
-    </footer>
-  </div>
-  <script src="/static/main.js"></script>
+  <div class="container">
+    <!-- Theme and Accent Controls -->
+    <div class="theme-controls" style="text-align:right; margin-top:0.8rem;">
+      <button id="themeToggleBtn" class="theme-btn" title="Switch theme">🌙</button>
+      <input type="color" id="accentPicker" value="#6bfcbc" aria-label="Accent color"
+        style="margin-left:1.3em;width:2.4em;height:2.4em;vertical-align:middle;border:none;padding:0;background:transparent;cursor:pointer;">
+    </div>
+    <!-- Centered top heading -->
+    <header class="main-header">
+      <h1>Currency Converter</h1>
+      <div class="sub-header">
+        <span class="tagline">A cheaper, <span class="tag-faster">faster</span> way to send money abroad</span><br>
+        <span class="desc">Convert any currency—minimal, instant, always updated.</span>
+      </div>
+    </header>
+    <main>
+      <form id="convertForm" autocomplete="off" onsubmit="return false;">
+        <div class="input-row">
+          <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" />
+          <select id="from" aria-label="From currency"></select>
+          <button type="button" class="swap-btn" id="swapBtn" title="Swap">⇆</button>
+          <select id="to" aria-label="To currency"></select>
+        </div>
+        <div class="input-row">
+          <input id="date" type="date" aria-label="Conversion date" placeholder="Date (optional)" />
+          <button id="convertBtn" class="primary-btn">Convert</button>
+        </div>
+        <div id="errorArea" aria-live="assertive"></div>
+      </form>
+      <section id="resultBox">
+        <div class="result" id="resultArea" aria-live="polite"></div>
+        <div class="meta" id="metaArea"></div>
+      </section>
+      <section id="providerBox">
+        <div id="providerArea"></div>
+      </section>
+    </main>
+    <footer>
+      Built by Somnath Saha | Minimal design, 2025
+    </footer>
+  </div>
+  <script src="/static/main.js"></script>
 </body>
 </html>
