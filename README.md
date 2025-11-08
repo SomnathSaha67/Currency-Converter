@@ -29,9 +29,7 @@ A minimal, modern web currency converter built with Flask and vanilla JavaScript
 | `templates/index.html`  | HTML UI (no dashboards, just converter)|
 | `static/style.css`      | Custom modern styling, high contrast   |
 | `static/main.js`        | UI interactivity and conversion logic  |
-| `requirements.txt`      | Python package dependencies            |
-| `Dockerfile`            | For containerized deployment           |
-| `Procfile`              | For platforms like Heroku/Render       |
+| `requirements.txt`      | Python package dependencies            |    |
 
 ***
 
@@ -75,17 +73,6 @@ Visit [http://127.0.0.1:5000](http://127.0.0.1:5000/) in your browser.
 
 ***
 
-## Deployment
-
-**Docker:**
-- Build:  
-  `docker build -t currency-converter .`
-- Run:  
-  `docker run -p 5000:5000 currency-converter`
-
-**PaaS (Render, Railway, Heroku):**
-- Provision a Python service, set `requirements.txt`, `Procfile`, and your environment variables if needed.
-- Use `web: gunicorn app:app --bind 0.0.0.0:$PORT` in the `Procfile`.
 
 ***
 
