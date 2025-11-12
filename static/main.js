@@ -2,12 +2,14 @@ async function fetchSymbols() {
   const res = await fetch('/api/symbols');
   return res.json();
 }
+
 function createOption(code, text) {
   const o = document.createElement('option');
   o.value = code;
   o.textContent = `${code} — ${text}`;
   return o;
 }
+
 async function populate() {
   const amountEl = document.getElementById('amount');
   const fromEl = document.getElementById('from');
@@ -36,6 +38,12 @@ async function populate() {
       fromEl.appendChild(createOption(code, desc));
       toEl.appendChild(createOption(code, desc));
     });
+    // Add "All" option for batch conversion
+    const allOption = document.createElement('option');
+    allOption.value = "ALL";
+    allOption.textContent = "ALL — All Currencies";
+    toEl.insertBefore(allOption, toEl.firstChild);
+
     fromEl.value = 'USD' in symbols ? 'USD' : codes[0];
     toEl.value = 'EUR' in symbols ? 'EUR' : (codes.length > 1 ? codes[1] : codes[0]);
     resultArea.textContent = '';
@@ -61,6 +69,45 @@ async function populate() {
       resultArea.textContent = '';
       return;
     }
+    // Batch conversion for ALL
+    if (to === "ALL") {
+      const data = await fetchSymbols();
+      if (!data.success) {
+        errorEl.textContent = "Could not load currency symbols.";
+        return;
+      }
+      const batchCodes = Object.keys(data.symbols).filter(code => code !== from);
+      let batchResults = `<table style="width:100%;text-align:left;"><tr><th>Currency</th><th>Converted Amount</th><th>Rate</th><th>Provider</th></tr>`;
+      for (const code of batchCodes) {
+        let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(code)}&amount=${encodeURIComponent(amount)}`;
+        if (date) url += `&date=${encodeURIComponent(date)}`;
+        try {
+          const r = await fetch(url);
+          const j = await r.json();
+          if (!j.success || !j.data) {
+            batchResults += `<tr><td>${code}</td><td>Error</td><td>N/A</td><td>N/A</td></tr>`;
+          } else {
+            const result = j.data.result;
+            const rate = j.data.info && j.data.info.rate ? j.data.info.rate : "N/A";
+            batchResults += `<tr>
+              <td>${code}</td>
+              <td>${result.toFixed(6)}</td>
+              <td>${rate !== "N/A" ? rate.toFixed(6) : "N/A"}</td>
+              <td>${j.provider || ""}</td>
+            </tr>`;
+          }
+        } catch (err) {
+          batchResults += `<tr><td>${code}</td><td>Error</td><td>N/A</td><td>N/A</td></tr>`;
+        }
+      }
+      batchResults += "</table>";
+      resultArea.innerHTML = batchResults;
+      providerArea.textContent = "Provider: Multiple";
+      metaArea.innerHTML = "";
+      return;
+    } // end ALL
+
+    // Single conversion as usual
     try {
       let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`;
       if (date) url += `&date=${encodeURIComponent(date)}`;
@@ -106,12 +153,11 @@ async function populate() {
 
   document.getElementById('swapBtn').addEventListener('click', () => {
     const tmp = fromEl.value;
-    fromEl.value = toEl.value;
+    fromEl.value = toEl.value !== "ALL" ? toEl.value : tmp;
     toEl.value = tmp;
   });
 }
 
-// Accessibility: Enter-key shortcut for controls
 ['amount','from','to','date','convertBtn','swapBtn'].forEach(id=>{
   const el = document.getElementById(id);
   if (el) el.addEventListener('keypress',e=>{
