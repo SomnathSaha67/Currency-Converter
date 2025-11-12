@@ -1,49 +1,29 @@
-#!/usr/bin/env python3
-"""
-Flask-based currency converter (simple website).
-
-Endpoints:
-- GET /                 -> HTML page
-- GET /api/symbols      -> JSON list of currencies
-- GET /api/convert      -> Convert (query params: from, to, amount, date(optional))
-
-Providers:
-- Primary: frankfurter.app
-- Fallback: api.exchangerate.host
-
-Run:
-  pip install -r requirements.txt
-  FLASK_ENV=development flask run
-"""
-import time
-from typing import Tuple, Dict, Any, Optional
-
+from flask import Flask, jsonify, request, render_template
 import requests
-from flask import Flask, jsonify, render_template, request
+import time
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+CORS(app)
 
 FRANKFURTER = "https://api.frankfurter.app"
 EXCHANGERATE = "https://api.exchangerate.host"
 
-# Simple in-memory cache for symbols
-CACHE: Dict[str, Any] = {
+# Simple in-memory cache for currency symbols
+CACHE = {
     "symbols": None,
     "symbols_ts": 0
 }
 SYMBOLS_TTL = 3600  # seconds
 
-
-def fetch_symbols() -> Tuple[Optional[dict], str, Any]:
+def fetch_symbols():
     """
     Return (symbols_dict_or_None, provider_name_or_empty, raw_response)
     symbols format: { "USD": {"description": "United States Dollar"}, ... }
     """
-    # Check cache
     now = time.time()
     if CACHE["symbols"] and (now - CACHE["symbols_ts"] < SYMBOLS_TTL):
         return CACHE["symbols"], "cache", {"cached": True}
-
     # Try Frankfurter first
     try:
         r = requests.get(f"{FRANKFURTER}/currencies", timeout=8)
@@ -63,23 +43,16 @@ def fetch_symbols() -> Tuple[Optional[dict], str, Any]:
         data = r.json()
         symbols = data.get("symbols") if isinstance(data, dict) else None
         if symbols:
-            # symbols already like {"USD": {"description": "United States Dollar"}, ...}
             CACHE["symbols"] = symbols
             CACHE["symbols_ts"] = now
             return symbols, "exchangerate.host", data
     except Exception as e:
         fallback_err = str(e)
-
     # Nothing worked
     raw = {"primary_error": locals().get("primary_err", None), "fallback_error": locals().get("fallback_err", None)}
     return None, "", raw
 
-
-def convert_via_frankfurter(from_currency: str, to_currency: str, amount: float, date: Optional[str] = None) -> Optional[dict]:
-    """
-    Try frankfurter conversion. Returns synthesized response like:
-    { success: True, query: {...}, info: {rate: ...}, result: ... }
-    """
+def convert_via_frankfurter(from_currency, to_currency, amount, date=None):
     path = date if date else "latest"
     params = {"from": from_currency.upper(), "to": to_currency.upper()}
     try:
@@ -97,14 +70,13 @@ def convert_via_frankfurter(from_currency: str, to_currency: str, amount: float,
             "info": {"rate": float(rate)},
             "result": float(result),
             "provider": "frankfurter.app",
-            "raw": data,
+            "raw": data
         }
         return synthesized
     except Exception:
         return None
 
-
-def convert_via_exchangerate(from_currency: str, to_currency: str, amount: float, date: Optional[str] = None) -> Optional[dict]:
+def convert_via_exchangerate(from_currency, to_currency, amount, date=None):
     params = {"from": from_currency.upper(), "to": to_currency.upper(), "amount": amount}
     if date:
         params["date"] = date
@@ -112,18 +84,15 @@ def convert_via_exchangerate(from_currency: str, to_currency: str, amount: float
         r = requests.get(f"{EXCHANGERATE}/convert", params=params, timeout=8)
         r.raise_for_status()
         data = r.json()
-        # Expect data to contain result and info.rate
         if isinstance(data, dict) and data.get("result") is not None:
             data["provider"] = "exchangerate.host"
             return data
     except Exception:
         return None
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/api/symbols")
 def api_symbols():
@@ -131,7 +100,6 @@ def api_symbols():
     if symbols is None:
         return jsonify({"success": False, "error": "Unable to fetch currency list", "detail": raw}), 500
     return jsonify({"success": True, "provider": provider, "symbols": symbols})
-
 
 @app.route("/api/convert")
 def api_convert():
@@ -150,7 +118,6 @@ def api_convert():
     if data2:
         return jsonify({"success": True, "provider": "exchangerate.host", "data": data2})
     return jsonify({"success": False, "error": "Both providers failed. Try again later or check network."}), 502
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
