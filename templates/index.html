@@ -72,7 +72,7 @@
     function setTheme(mode) {
       document.documentElement.setAttribute('data-theme', mode);
       localStorage.setItem('theme', mode);
-      // Switch icon
+      // Switch icon for button
       if (mode === 'light') {
         document.getElementById("sunIcon").style.display = "none";
         document.getElementById("moonIcon").style.display = "";
