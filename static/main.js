@@ -10,6 +10,36 @@ function createOption(code, text) {
   return o;
 }
 
+function createBatchTable(results, from, amount) {
+  // Responsive table with theme-ready classes
+  let table = `
+  <div class="batch-table-glass">
+    <table class="batch-table">
+      <thead>
+        <tr>
+          <th>Currency</th>
+          <th>Amount</th>
+          <th>Rate (1 ${from})</th>
+          <th>Provider</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  for (const r of results) {
+    table += `<tr>
+      <td><span class="batch-code">${r.to}</span></td>
+      <td><span class="batch-result">${r.result}</span></td>
+      <td><span class="batch-rate">${r.rate === "N/A" ? "N/A" : r.rate}</span></td>
+      <td><span class="batch-provider">${r.provider}</span></td>
+    </tr>`;
+  }
+  table += `
+      </tbody>
+    </table>
+  </div>`;
+  return table;
+}
+
 async function populate() {
   const amountEl = document.getElementById('amount');
   const fromEl = document.getElementById('from');
@@ -69,7 +99,6 @@ async function populate() {
       resultArea.textContent = '';
       return;
     }
-    // Batch conversion for ALL
     if (to === "ALL") {
       const data = await fetchSymbols();
       if (!data.success) {
@@ -77,35 +106,39 @@ async function populate() {
         return;
       }
       const batchCodes = Object.keys(data.symbols).filter(code => code !== from);
-      let batchResults = `<table style="width:100%;text-align:left;"><tr><th>Currency</th><th>Converted Amount</th><th>Rate</th><th>Provider</th></tr>`;
-      for (const code of batchCodes) {
+      // Parallel requests for speed!
+      const promises = batchCodes.map(code => {
         let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(code)}&amount=${encodeURIComponent(amount)}`;
         if (date) url += `&date=${encodeURIComponent(date)}`;
-        try {
-          const r = await fetch(url);
-          const j = await r.json();
+        return fetch(url).then(r => r.json()).then(j => {
           if (!j.success || !j.data) {
-            batchResults += `<tr><td>${code}</td><td>Error</td><td>N/A</td><td>N/A</td></tr>`;
-          } else {
-            const result = j.data.result;
-            const rate = j.data.info && j.data.info.rate ? j.data.info.rate : "N/A";
-            batchResults += `<tr>
-              <td>${code}</td>
-              <td>${result.toFixed(6)}</td>
-              <td>${rate !== "N/A" ? rate.toFixed(6) : "N/A"}</td>
-              <td>${j.provider || ""}</td>
-            </tr>`;
+            return {
+              to: code,
+              result: "Error",
+              rate: "N/A",
+              provider: "N/A"
+            };
           }
-        } catch (err) {
-          batchResults += `<tr><td>${code}</td><td>Error</td><td>N/A</td><td>N/A</td></tr>`;
-        }
-      }
-      batchResults += "</table>";
-      resultArea.innerHTML = batchResults;
+          return {
+            to: code,
+            result: j.data.result ? j.data.result.toFixed(6) : "Error",
+            rate: j.data.info && j.data.info.rate ? j.data.info.rate.toFixed(6) : "N/A",
+            provider: j.provider || ""
+          };
+        }).catch(() => ({
+          to: code,
+          result: "Error",
+          rate: "N/A",
+          provider: "N/A"
+        }));
+      });
+
+      const batchResults = await Promise.all(promises);
+      resultArea.innerHTML = createBatchTable(batchResults, from, amount);
       providerArea.textContent = "Provider: Multiple";
       metaArea.innerHTML = "";
       return;
-    } // end ALL
+    }
 
     // Single conversion as usual
     try {
