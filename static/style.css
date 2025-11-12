@@ -50,8 +50,9 @@ body, html {
   margin-top: 34px;
   margin-bottom: 18px;
   position: relative;
+  z-index: 1;
 }
-.main-header h1 {
+.main-title {
   font-size: 2.65rem;
   font-weight: 900;
   font-family: 'Montserrat', Arial, sans-serif;
@@ -59,14 +60,30 @@ body, html {
   color: var(--text-main);
   margin-bottom: 0.23em;
 }
+
 .theme-btn {
   position: absolute;
   top: 12px;
   right: 28px;
-  font-size: 1.03em;
-  padding: 0.65em 1.1em;
-  z-index: 1;
-  min-width: 110px;
+  padding: 0.4em 0.75em;
+  border-radius: 16px;
+  background: var(--primary-btn-bg);
+  box-shadow: 0 1px 8px #328fff44;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.22s, box-shadow 0.22s;
+}
+.theme-btn:hover {
+  background: linear-gradient(90deg,var(--accent2) 0%,var(--accent) 100%);
+}
+.theme-btn svg {
+  vertical-align: middle;
+  display: inline-block;
+  pointer-events: none;
 }
 
 .sub-header {
@@ -206,11 +223,11 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .result-rate {
- font-size: 0.99em;
- font-weight: 500;
- color: var(--accent2, #4773fa);
- margin-bottom: 0.21em;
- text-shadow: 0 1px 4px #1b2333, 0 0px 1px #222432;
+  font-size: 0.99em;
+  font-weight: 500;
+  color: var(--accent2, #4773fa);
+  margin-bottom: 0.21em;
+  text-shadow: 0 1px 4px #1b2333, 0 0px 1px #222432;
 }
 
 .meta {
