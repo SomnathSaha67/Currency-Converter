@@ -12,6 +12,7 @@
     <!-- Centered top heading -->
     <header class="main-header">
       <h1>Currency Converter</h1>
+      <button id="themeToggleBtn" class="primary-btn theme-btn">Toggle Dark/Light</button>
       <div class="sub-header">
         <span class="tagline">A cheaper, <span class="tag-faster">faster</span> way to send money abroad</span><br>
         <span class="desc">Convert any currency—minimal, instant, always updated.</span>
@@ -19,7 +20,7 @@
     </header>
     <main>
       <form id="convertForm" autocomplete="off" onsubmit="return false;">
-        <div class="input-row">
+        <div class="input-row glass-input">
           <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" />
           <select id="from" aria-label="From currency"></select>
           <button type="button" class="swap-btn" id="swapBtn" title="Swap">⇆</button>
@@ -44,5 +45,6 @@
     </footer>
   </div>
   <script src="/static/main.js"></script>
+  <script src="/static/theme.js"></script>
 </body>
 </html>
