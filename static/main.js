@@ -179,9 +179,10 @@ async function populate() {
 });
 document.addEventListener('DOMContentLoaded', populate);
 
+// NEWS BLOCK
 async function fetchCurrencyNews() {
   const apiKey = '6cae3a3a4bee4776b3e1fc998237d7f3';
-  const url = `https://newsapi.org/v2/everything?q=currency OR forex OR exchange%20rate&sortBy=publishedAt&language=en&apiKey=${apiKey}`;
+  const url = `https://newsapi.org/v2/top-headlines?category=business&language=en&apiKey=${apiKey}`;
   try {
     const res = await fetch(url);
     const data = await res.json();
