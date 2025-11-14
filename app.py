@@ -4,13 +4,11 @@ import time
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
-# API providers
 FRANKFURTER = "https://api.frankfurter.app"
 EXCHANGERATE = "https://api.exchangerate.host"
 
-# Simple in-memory caching for symbols
 CACHE = {"symbols": None, "symbols_ts": 0}
-SYMBOLS_TTL = 3600  # seconds
+SYMBOLS_TTL = 3600
 
 def fetch_symbols():
     now = time.time()

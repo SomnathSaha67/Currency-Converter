@@ -2,16 +2,13 @@ async function fetchSymbols() {
   const res = await fetch('/api/symbols');
   return res.json();
 }
-
 function createOption(code, text) {
   const o = document.createElement('option');
   o.value = code;
   o.textContent = `${code} — ${text}`;
   return o;
 }
-
 function createBatchTable(results, from, amount) {
-  // Responsive table with theme-ready classes
   let table = `
   <div class="batch-table-glass">
     <table class="batch-table">
@@ -39,7 +36,6 @@ function createBatchTable(results, from, amount) {
   </div>`;
   return table;
 }
-
 async function populate() {
   const amountEl = document.getElementById('amount');
   const fromEl = document.getElementById('from');
@@ -49,7 +45,6 @@ async function populate() {
   const dateEl = document.getElementById('date');
   const errorEl = document.getElementById('errorArea');
   const providerArea = document.getElementById('providerArea');
-
   resultArea.textContent = 'Loading currencies…';
   try {
     const data = await fetchSymbols();
@@ -68,12 +63,10 @@ async function populate() {
       fromEl.appendChild(createOption(code, desc));
       toEl.appendChild(createOption(code, desc));
     });
-    // Add "All" option for batch conversion
     const allOption = document.createElement('option');
     allOption.value = "ALL";
     allOption.textContent = "ALL — All Currencies";
     toEl.insertBefore(allOption, toEl.firstChild);
-
     fromEl.value = 'USD' in symbols ? 'USD' : codes[0];
     toEl.value = 'EUR' in symbols ? 'EUR' : (codes.length > 1 ? codes[1] : codes[0]);
     resultArea.textContent = '';
@@ -84,7 +77,6 @@ async function populate() {
     metaArea.textContent = String(err);
     providerArea.textContent = "";
   }
-
   document.getElementById('convertBtn').addEventListener('click', async () => {
     const from = fromEl.value;
     const to = toEl.value;
@@ -106,18 +98,12 @@ async function populate() {
         return;
       }
       const batchCodes = Object.keys(data.symbols).filter(code => code !== from);
-      // Parallel requests for speed!
       const promises = batchCodes.map(code => {
         let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(code)}&amount=${encodeURIComponent(amount)}`;
         if (date) url += `&date=${encodeURIComponent(date)}`;
         return fetch(url).then(r => r.json()).then(j => {
           if (!j.success || !j.data) {
-            return {
-              to: code,
-              result: "Error",
-              rate: "N/A",
-              provider: "N/A"
-            };
+            return { to: code, result: "Error", rate: "N/A", provider: "N/A" };
           }
           return {
             to: code,
@@ -132,15 +118,12 @@ async function populate() {
           provider: "N/A"
         }));
       });
-
       const batchResults = await Promise.all(promises);
       resultArea.innerHTML = createBatchTable(batchResults, from, amount);
       providerArea.textContent = "Provider: Multiple";
       metaArea.innerHTML = "";
       return;
     }
-
-    // Single conversion as usual
     try {
       let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`;
       if (date) url += `&date=${encodeURIComponent(date)}`;
@@ -158,7 +141,6 @@ async function populate() {
       const toCode = data.query && data.query.to ? data.query.to : to;
       const result = data.result;
       const rate = data.info && data.info.rate ? data.info.rate : null;
-
       if (rate !== null) {
         resultArea.innerHTML = `
           <div class="result-main">
@@ -183,14 +165,12 @@ async function populate() {
       providerArea.textContent = "";
     }
   });
-
   document.getElementById('swapBtn').addEventListener('click', () => {
     const tmp = fromEl.value;
     fromEl.value = toEl.value !== "ALL" ? toEl.value : tmp;
     toEl.value = tmp;
   });
 }
-
 ['amount','from','to','date','convertBtn','swapBtn'].forEach(id=>{
   const el = document.getElementById(id);
   if (el) el.addEventListener('keypress',e=>{

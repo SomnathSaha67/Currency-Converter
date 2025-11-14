@@ -9,13 +9,10 @@
 </head>
 <body>
   <div class="container">
-    <!-- Centered top heading -->
     <header class="main-header">
       <h1 class="main-title">Currency Converter</h1>
-      <!-- Theme toggle button (SVG icon)-->
       <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light" aria-label="Toggle theme">
         <span id="themeToggleIcon">
-          <!-- Sun and moon SVG icon, JS will switch them -->
           <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" id="sunIcon">
             <circle cx="14.5" cy="14.5" r="6.5" stroke="#fff" stroke-width="2" fill="#ffe965"/>
             <g stroke="#ffe965" stroke-width="2">
@@ -60,19 +57,25 @@
       <section id="providerBox">
         <div id="providerArea"></div>
       </section>
+      <!-- Currency News Block -->
+      <section id="newsBox" class="news-section">
+        <h2 class="news-title">Latest Currency News</h2>
+        <iframe src="https://ssltools.investing.com/news-tool/index.php?edition=IN"
+                style="width:100%;height:350px;border:none;overflow:hidden;background:transparent;"
+                title="Latest Currency News"
+                scrolling="no"
+                allowtransparency="true"></iframe>
+      </section>
     </main>
     <footer>
       Built by Somnath Saha | Minimal design, 2025
     </footer>
   </div>
   <script src="/static/main.js"></script>
-  <!-- Theme script with icon toggling -->
   <script>
-    // Theme toggle state
     function setTheme(mode) {
       document.documentElement.setAttribute('data-theme', mode);
       localStorage.setItem('theme', mode);
-      // Switch icon for button
       if (mode === 'light') {
         document.getElementById("sunIcon").style.display = "none";
         document.getElementById("moonIcon").style.display = "";
