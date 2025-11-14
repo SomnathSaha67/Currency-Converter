@@ -36,6 +36,7 @@ function createBatchTable(results, from, amount) {
   </div>`;
   return table;
 }
+
 async function populate() {
   const amountEl = document.getElementById('amount');
   const fromEl = document.getElementById('from');
@@ -45,6 +46,7 @@ async function populate() {
   const dateEl = document.getElementById('date');
   const errorEl = document.getElementById('errorArea');
   const providerArea = document.getElementById('providerArea');
+
   resultArea.textContent = 'Loading currencies…';
   try {
     const data = await fetchSymbols();
@@ -179,27 +181,77 @@ async function populate() {
 });
 document.addEventListener('DOMContentLoaded', populate);
 
-// NEWS BLOCK
-async function fetchCurrencyNews() {
-  const apiKey = '6cae3a3a4bee4776b3e1fc998237d7f3';
-  const url = `https://newsapi.org/v2/top-headlines?category=business&language=en&apiKey=${apiKey}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    const newsList = document.getElementById('newsList');
-    newsList.innerHTML = '';
-    if (data.articles && data.articles.length > 0) {
-      data.articles.slice(0, 8).forEach(article => {
-        let li = document.createElement('li');
-        li.innerHTML = `<a href="${article.url}" target="_blank">${article.title}</a>
-          <span style="color:#7a8fae;font-size:.95em"> (${article.source.name})</span>`;
-        newsList.appendChild(li);
-      });
-    } else {
-      newsList.innerHTML = "<li>No recent news found.</li>";
-    }
-  } catch (e) {
-    document.getElementById('newsList').innerHTML = "<li>Could not load news.</li>";
+// ----- (1) CHART: Historical exchange trend -----
+let chartInst = null;
+async function renderCurrencyChart() {
+  const from = document.getElementById('from').value;
+  const to = document.getElementById('to').value;
+  const days = document.getElementById('chartPeriod').value;
+  const now = new Date();
+  const endDate = now.toISOString().split('T')[0];
+  const dt = new Date(now); dt.setDate(dt.getDate() - days);
+  const startDate = dt.toISOString().split('T')[0];
+  const url = `https://api.exchangerate.host/timeseries?start_date=${startDate}&end_date=${endDate}&base=${from}&symbols=${to}`;
+  const r = await fetch(url); const data = await r.json();
+  const labels = []; const rates = [];
+  for (let d in data.rates) {
+    labels.push(d); rates.push(data.rates[d][to]);
   }
+  const ctx = document.getElementById('currencyChart').getContext('2d');
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(ctx, {
+    type: 'line', data: {labels: labels, datasets:[{label:`${from}→${to}`,data: rates,borderColor:'#6bfcbc',fill:false}]},
+    options: {scales:{x:{display:false},y:{beginAtZero:false}}, plugins:{legend:{display:false}}}
+  });
+  const min = Math.min(...rates), max = Math.max(...rates), avg = rates.reduce((a,b)=>a+b,0)/rates.length;
+  const volatility = ((max-min)/avg*100).toFixed(2);
+  document.getElementById('chartStats').innerHTML =
+    `High: ${max.toFixed(4)}, Low: ${min.toFixed(4)}, Avg: ${avg.toFixed(4)}, Volatility: ${volatility}%`;
 }
-document.addEventListener('DOMContentLoaded', fetchCurrencyNews);
+document.getElementById('chartPeriod').addEventListener('change', renderCurrencyChart);
+document.getElementById('from').addEventListener('change', renderCurrencyChart);
+document.getElementById('to').addEventListener('change', renderCurrencyChart);
+document.addEventListener('DOMContentLoaded', renderCurrencyChart);
+
+// ----- (4) Conversion Simulator -----
+document.getElementById('simConvertBtn').addEventListener('click', async ()=>{
+  const amount = document.getElementById('simAmount').value;
+  const from = document.getElementById('from').value;
+  const to = document.getElementById('to').value;
+  const simDate = document.getElementById('simDate').value;
+  let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`;
+  if(simDate) url += `&date=${encodeURIComponent(simDate)}`;
+  const r = await fetch(url); const j = await r.json();
+  if (j.success && j.data && j.data.result !== undefined) {
+    const res = j.data.result;
+    let dateMsg = simDate ? ` on ${simDate}`:" (latest)";
+    document.getElementById('simResult').textContent = `${amount} ${from} = ${parseFloat(res).toFixed(4)} ${to}${dateMsg}`;
+  } else {
+    document.getElementById('simResult').textContent = "Simulation failed.";
+  }
+});
+
+// ----- (7) Financial Tips -----
+const tips = [
+  "Diversify your savings across different strong currencies.",
+  "Check for hidden conversion fees when exchanging money.",
+  "Plan international payments when the currency is strongest.",
+  "Monitor currency charts to spot trends before converting.",
+  "Small daily fluctuations can add up for big transactions—watch volatility.",
+  "Set exchange rate alerts if you need a specific rate soon.",
+  "Understand how inflation affects currency value long-term.",
+  "Favor online transfers for lower fees, but compare rates first."
+];
+let tipNum = 0;
+function showTip() {
+  document.getElementById('financialTip').textContent = tips[tipNum];
+}
+document.getElementById('tipBlock').addEventListener('click', ()=>{ tipNum = (tipNum+1)%tips.length; showTip(); });
+document.addEventListener('DOMContentLoaded', showTip);
+
+// ----- (8) TradingView indices ticker -----
+document.addEventListener('DOMContentLoaded', function(){
+  const tvDiv = document.getElementById('tradingview-widget');
+  tvDiv.innerHTML = `<iframe src="https://s.tradingview.com/embed-widget/ticker-tape/?locale=en#%7B%22symbols%22%3A%5B%7B%22proName%22%3A%22FOREXCOM%3AEURUSD%22%2C%22title%22%3A%22EUR%2FUSD%22%7D%2C%7B%22proName%22%3A%22OANDA%3AUSDINR%22%2C%22title%22%3A%22USD%2FINR%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AUSDEUR%22%2C%22title%22%3A%22USD%2FEUR%22%7D%2C%7B%22proName%22%3A%22NASDAQ%3ANDS%22%2C%22title%22%3A%22NASDAQ%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AGBPUSD%22%2C%22title%22%3A%22GBP%2FUSD%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AUSDJPY%22%2C%22title%22%3A%22USD%2FJPY%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AUSDCAD%22%2C%22title%22%3A%22USD%2FCAD%22%7D%2C%7B%22proName%22%3A%22BITSTAMP%3ABTCUSD%22%2C%22title%22%3A%22BTC%2FUSD%22%7D%5D%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%2C%22displayMode%22%3A%22adaptive%22%2C%22locale%22%3A%22en%22%7D"
+    width="100%" height="48" style="border:none;overflow:hidden;" allowtransparency="true"></iframe>`;
+});
