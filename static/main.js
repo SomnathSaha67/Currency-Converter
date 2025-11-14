@@ -199,37 +199,24 @@ async function renderCurrencyChart() {
   }
   const ctx = document.getElementById('currencyChart').getContext('2d');
   if (chartInst) chartInst.destroy();
-  chartInst = new Chart(ctx, {
-    type: 'line', data: {labels: labels, datasets:[{label:`${from}→${to}`,data: rates,borderColor:'#6bfcbc',fill:false}]},
-    options: {scales:{x:{display:false},y:{beginAtZero:false}}, plugins:{legend:{display:false}}}
-  });
-  const min = Math.min(...rates), max = Math.max(...rates), avg = rates.reduce((a,b)=>a+b,0)/rates.length;
-  const volatility = ((max-min)/avg*100).toFixed(2);
-  document.getElementById('chartStats').innerHTML =
-    `High: ${max.toFixed(4)}, Low: ${min.toFixed(4)}, Avg: ${avg.toFixed(4)}, Volatility: ${volatility}%`;
+  if (rates.length > 0 && rates.every(x => typeof x === 'number' && isFinite(x))) {
+    chartInst = new Chart(ctx, {
+      type: 'line', data: {labels: labels, datasets:[{label:`${from}→${to}`,data: rates,borderColor:'#6bfcbc',fill:false}]},
+      options: {scales:{x:{display:false},y:{beginAtZero:false}}, plugins:{legend:{display:false}}}
+    });
+    const min = Math.min(...rates), max = Math.max(...rates), avg = rates.reduce((a,b)=>a+b,0)/rates.length;
+    const volatility = ((max-min)/avg*100).toFixed(2);
+    document.getElementById('chartStats').innerHTML =
+      `High: ${max.toFixed(4)}, Low: ${min.toFixed(4)}, Avg: ${avg.toFixed(4)}, Volatility: ${volatility}%`;
+  } else {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    document.getElementById('chartStats').innerHTML = "No historical data available for this currency pair.";
+  }
 }
 document.getElementById('chartPeriod').addEventListener('change', renderCurrencyChart);
 document.getElementById('from').addEventListener('change', renderCurrencyChart);
 document.getElementById('to').addEventListener('change', renderCurrencyChart);
 document.addEventListener('DOMContentLoaded', renderCurrencyChart);
-
-// ----- (4) Conversion Simulator -----
-document.getElementById('simConvertBtn').addEventListener('click', async ()=>{
-  const amount = document.getElementById('simAmount').value;
-  const from = document.getElementById('from').value;
-  const to = document.getElementById('to').value;
-  const simDate = document.getElementById('simDate').value;
-  let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`;
-  if(simDate) url += `&date=${encodeURIComponent(simDate)}`;
-  const r = await fetch(url); const j = await r.json();
-  if (j.success && j.data && j.data.result !== undefined) {
-    const res = j.data.result;
-    let dateMsg = simDate ? ` on ${simDate}`:" (latest)";
-    document.getElementById('simResult').textContent = `${amount} ${from} = ${parseFloat(res).toFixed(4)} ${to}${dateMsg}`;
-  } else {
-    document.getElementById('simResult').textContent = "Simulation failed.";
-  }
-});
 
 // ----- (7) Financial Tips -----
 const tips = [

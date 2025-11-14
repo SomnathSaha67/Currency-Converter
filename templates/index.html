@@ -14,8 +14,11 @@
       <h1 class="main-title">Currency Converter</h1>
       <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light" aria-label="Toggle theme">
         <span id="themeToggleIcon">
-          <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" id="sunIcon">
-            <circle cx="14.5" cy="14.5" r="6.5" stroke="#fff" stroke-width="2" fill="#ffe965"/>
+          <!-- Sun/Moon SVG icons -->
+          <svg width="29" height="29" viewBox="0 0 29 29" fill="none"
+            xmlns="http://www.w3.org/2000/svg" id="sunIcon">
+            <circle cx="14.5" cy="14.5" r="6.5" stroke="#fff"
+              stroke-width="2" fill="#ffe965"/>
             <g stroke="#ffe965" stroke-width="2">
               <line x1="14.5" y1="3" x2="14.5" y2="7"/>
               <line x1="14.5" y1="22" x2="14.5" y2="26"/>
@@ -27,8 +30,10 @@
               <line x1="20" y1="20" x2="23" y2="23"/>
             </g>
           </svg>
-          <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" id="moonIcon" style="display: none;">
-            <path d="M21.6 18.6A8 8 0 1 1 14.1 6.2a7 7 0 1 0 7.5 12.4z" fill="#acd8fa" stroke="#fff" stroke-width="2"/>
+          <svg width="29" height="29" viewBox="0 0 29 29" fill="none"
+            xmlns="http://www.w3.org/2000/svg" id="moonIcon" style="display: none;">
+            <path d="M21.6 18.6A8 8 0 1 1 14.1 6.2a7 7 0 1 0 7.5 12.4z"
+              fill="#acd8fa" stroke="#fff" stroke-width="2"/>
           </svg>
         </span>
       </button>
@@ -59,8 +64,7 @@
       <section id="providerBox">
         <div id="providerArea"></div>
       </section>
-
-      <!-- Interactive Chart -->
+      <!-- Exchange Rate Chart -->
       <section id="chartBlock" class="chart-section">
         <h2 class="chart-title">Exchange Rate Trend</h2>
         <div class="chart-controls">
@@ -76,26 +80,11 @@
         <canvas id="currencyChart" height="92"></canvas>
         <div id="chartStats"></div>
       </section>
-
-      <!-- Conversion Simulator -->
-      <section id="simBlock" class="sim-section">
-        <h2 class="sim-title">Conversion Simulator</h2>
-        <div class="sim-controls">
-          <label for="simAmount">Amount:</label>
-          <input id="simAmount" type="number" value="1000" min="1" />
-          <label for="simDate">Date in past (optional):</label>
-          <input id="simDate" type="date" />
-          <button id="simConvertBtn" class="primary-btn" type="button">Simulate</button>
-        </div>
-        <div id="simResult"></div>
-      </section>
-
       <!-- Financial Tips -->
       <section id="tipBlock" class="tip-section">
         <h2 class="tip-title">Financial Tip</h2>
         <div id="financialTip"></div>
       </section>
-
       <!-- Indices Ticker Widget -->
       <section id="tvBlock" class="tv-section">
         <h2 class="tv-title">Global Market Indices</h2>
