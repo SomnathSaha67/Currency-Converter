@@ -178,3 +178,27 @@ async function populate() {
   });
 });
 document.addEventListener('DOMContentLoaded', populate);
+
+async function fetchCurrencyNews() {
+  const apiKey = '6cae3a3a4bee4776b3e1fc998237d7f3';
+  const url = `https://newsapi.org/v2/everything?q=currency OR forex OR exchange%20rate&sortBy=publishedAt&language=en&apiKey=${apiKey}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const newsList = document.getElementById('newsList');
+    newsList.innerHTML = '';
+    if (data.articles && data.articles.length > 0) {
+      data.articles.slice(0, 8).forEach(article => {
+        let li = document.createElement('li');
+        li.innerHTML = `<a href="${article.url}" target="_blank">${article.title}</a>
+          <span style="color:#7a8fae;font-size:.95em"> (${article.source.name})</span>`;
+        newsList.appendChild(li);
+      });
+    } else {
+      newsList.innerHTML = "<li>No recent news found.</li>";
+    }
+  } catch (e) {
+    document.getElementById('newsList').innerHTML = "<li>Could not load news.</li>";
+  }
+}
+document.addEventListener('DOMContentLoaded', fetchCurrencyNews);

@@ -113,6 +113,8 @@ footer { color: var(--text-highlight); font-size: 1.09em; margin: 2.6em auto 1em
 }
 .news-section { margin: 2em auto 1.5em auto; max-width: 700px; background: var(--glass-bg, #f9fafd); box-shadow: 0 3px 18px #183a5b22; border-radius: 16px; padding: 1.2em 1.1em 1.6em 1.1em; text-align: left; }
 .news-title { font-size: 1.25em; color: var(--text-accent, #4773fa); font-weight: 900; margin-bottom: 0.9em; letter-spacing: 0.02em; }
-@media (max-width: 900px) {
-  .news-section { max-width: 99vw; padding: 1em 0.4em; border-radius: 13px; }
-}
+/* News list styles */
+#newsList { margin: 0; padding: 0; list-style: none; }
+#newsList li { padding: 0.18em 0; font-size: 1.03em; }
+#newsList a { color: var(--text-accent, #4773fa); text-decoration: none; word-break: break-word; }
+#newsList a:hover { text-decoration: underline; }
