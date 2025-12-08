@@ -1,13 +1,16 @@
+// ----- Helpers -----
 async function fetchSymbols() {
   const res = await fetch('/api/symbols');
   return res.json();
 }
+
 function createOption(code, text) {
   const o = document.createElement('option');
   o.value = code;
   o.textContent = `${code} — ${text}`;
   return o;
 }
+
 function createBatchTable(results, from, amount) {
   let table = `
   <div class="batch-table-glass">
@@ -36,6 +39,18 @@ function createBatchTable(results, from, amount) {
   </div>`;
   return table;
 }
+
+// Simple debounce so we don't spam the server while typing
+function debounce(fn, delay) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// This function will be assigned later, so auto-convert handlers can call it
+let runConversion = null;
 
 async function populate() {
   const amountEl = document.getElementById('amount');
@@ -79,20 +94,27 @@ async function populate() {
     metaArea.textContent = String(err);
     providerArea.textContent = "";
   }
-  document.getElementById('convertBtn').addEventListener('click', async () => {
+
+  // Core conversion logic extracted into a function so we can reuse it
+  runConversion = async () => {
     const from = fromEl.value;
     const to = toEl.value;
     const amount = amountEl.value || '1';
     const date = dateEl.value;
+
+    // If fields not ready yet, skip
+    if (!from || !to) return;
+
     resultArea.textContent = 'Converting…';
     metaArea.textContent = '';
     errorEl.textContent = '';
+
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       errorEl.textContent = "Please enter a valid, positive amount for conversion.";
-      amountEl.focus();
       resultArea.textContent = '';
       return;
     }
+
     if (to === "ALL") {
       const data = await fetchSymbols();
       if (!data.success) {
@@ -103,22 +125,24 @@ async function populate() {
       const promises = batchCodes.map(code => {
         let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(code)}&amount=${encodeURIComponent(amount)}`;
         if (date) url += `&date=${encodeURIComponent(date)}`;
-        return fetch(url).then(r => r.json()).then(j => {
-          if (!j.success || !j.data) {
-            return { to: code, result: "Error", rate: "N/A", provider: "N/A" };
-          }
-          return {
+        return fetch(url)
+          .then(r => r.json())
+          .then(j => {
+            if (!j.success || !j.data) {
+              return { to: code, result: "Error", rate: "N/A", provider: "N/A" };
+            }
+            return {
+              to: code,
+              result: j.data.result ? j.data.result.toFixed(6) : "Error",
+              rate: j.data.info && j.data.info.rate ? j.data.info.rate.toFixed(6) : "N/A",
+              provider: j.provider || ""
+            };
+          }).catch(() => ({
             to: code,
-            result: j.data.result ? j.data.result.toFixed(6) : "Error",
-            rate: j.data.info && j.data.info.rate ? j.data.info.rate.toFixed(6) : "N/A",
-            provider: j.provider || ""
-          };
-        }).catch(() => ({
-          to: code,
-          result: "Error",
-          rate: "N/A",
-          provider: "N/A"
-        }));
+            result: "Error",
+            rate: "N/A",
+            provider: "N/A"
+          }));
       });
       const batchResults = await Promise.all(promises);
       resultArea.innerHTML = createBatchTable(batchResults, from, amount);
@@ -126,6 +150,7 @@ async function populate() {
       metaArea.innerHTML = "";
       return;
     }
+
     try {
       let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`;
       if (date) url += `&date=${encodeURIComponent(date)}`;
@@ -143,6 +168,7 @@ async function populate() {
       const toCode = data.query && data.query.to ? data.query.to : to;
       const result = data.result;
       const rate = data.info && data.info.rate ? data.info.rate : null;
+
       if (rate !== null) {
         resultArea.innerHTML = `
           <div class="result-main">
@@ -166,57 +192,118 @@ async function populate() {
       metaArea.textContent = String(err);
       providerArea.textContent = "";
     }
+  };
+
+  // Button click still works
+  document.getElementById('convertBtn').addEventListener('click', () => {
+    if (runConversion) runConversion();
   });
+
+  // Swap button
   document.getElementById('swapBtn').addEventListener('click', () => {
     const tmp = fromEl.value;
     fromEl.value = toEl.value !== "ALL" ? toEl.value : tmp;
     toEl.value = tmp;
+    if (runConversion) runConversion();
+    renderCurrencyChart(); // also update chart when swapped
+  });
+
+  // Auto-convert: debounce to avoid too many requests while typing
+  const debouncedAutoConvert = debounce(() => {
+    if (runConversion) runConversion();
+  }, 600);
+
+  // Trigger auto-convert when user edits amount, date, from, to
+  amountEl.addEventListener('input', debouncedAutoConvert);
+  dateEl.addEventListener('change', debouncedAutoConvert);
+  fromEl.addEventListener('change', () => {
+    debouncedAutoConvert();
+    renderCurrencyChart();
+  });
+  toEl.addEventListener('change', () => {
+    debouncedAutoConvert();
+    renderCurrencyChart();
   });
 }
+
+// Pressing Enter triggers convert button
 ['amount','from','to','date','convertBtn','swapBtn'].forEach(id=>{
   const el = document.getElementById(id);
   if (el) el.addEventListener('keypress',e=>{
     if(e.key==="Enter" || e.keyCode===13){el.click();}
   });
 });
+
 document.addEventListener('DOMContentLoaded', populate);
 
 // ----- (1) CHART: Historical exchange trend -----
 let chartInst = null;
+
 async function renderCurrencyChart() {
-  const from = document.getElementById('from').value;
-  const to = document.getElementById('to').value;
-  const days = document.getElementById('chartPeriod').value;
+  const fromEl = document.getElementById('from');
+  const toEl = document.getElementById('to');
+  if (!fromEl || !toEl) return;
+
+  const from = fromEl.value;
+  const to = toEl.value;
+  const days = parseInt(document.getElementById('chartPeriod').value, 10);
   const now = new Date();
   const endDate = now.toISOString().split('T')[0];
   const dt = new Date(now); dt.setDate(dt.getDate() - days);
   const startDate = dt.toISOString().split('T')[0];
+
   const url = `https://api.exchangerate.host/timeseries?start_date=${startDate}&end_date=${endDate}&base=${from}&symbols=${to}`;
-  const r = await fetch(url); const data = await r.json();
-  const labels = []; const rates = [];
-  for (let d in data.rates) {
-    labels.push(d); rates.push(data.rates[d][to]);
-  }
-  const ctx = document.getElementById('currencyChart').getContext('2d');
-  if (chartInst) chartInst.destroy();
-  if (rates.length > 0 && rates.every(x => typeof x === 'number' && isFinite(x))) {
-    chartInst = new Chart(ctx, {
-      type: 'line', data: {labels: labels, datasets:[{label:`${from}→${to}`,data: rates,borderColor:'#6bfcbc',fill:false}]},
-      options: {scales:{x:{display:false},y:{beginAtZero:false}}, plugins:{legend:{display:false}}}
-    });
-    const min = Math.min(...rates), max = Math.max(...rates), avg = rates.reduce((a,b)=>a+b,0)/rates.length;
-    const volatility = ((max-min)/avg*100).toFixed(2);
-    document.getElementById('chartStats').innerHTML =
-      `High: ${max.toFixed(4)}, Low: ${min.toFixed(4)}, Avg: ${avg.toFixed(4)}, Volatility: ${volatility}%`;
-  } else {
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    const labels = [];
+    const rates = [];
+    // sort dates so chart is ordered
+    const dates = Object.keys(data.rates || {}).sort();
+    for (let d of dates) {
+      labels.push(d);
+      rates.push(data.rates[d][to]);
+    }
+
+    const ctx = document.getElementById('currencyChart').getContext('2d');
+    if (chartInst) chartInst.destroy();
+    if (rates.length > 0 && rates.every(x => typeof x === 'number' && isFinite(x))) {
+      chartInst = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets:[{
+            label:`${from}→${to}`,
+            data: rates,
+            borderColor:'#6bfcbc',
+            fill:false
+          }]
+        },
+        options: {
+          scales:{x:{display:false},y:{beginAtZero:false}},
+          plugins:{legend:{display:false}}
+        }
+      });
+      const min = Math.min(...rates), max = Math.max(...rates),
+            avg = rates.reduce((a,b)=>a+b,0)/rates.length;
+      const volatility = ((max-min)/avg*100).toFixed(2);
+      document.getElementById('chartStats').innerHTML =
+        `High: ${max.toFixed(4)}, Low: ${min.toFixed(4)}, Avg: ${avg.toFixed(4)}, Volatility: ${volatility}%`;
+    } else {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      document.getElementById('chartStats').innerHTML =
+        "No historical data available for this currency pair.";
+    }
+  } catch (e) {
+    const ctx = document.getElementById('currencyChart').getContext('2d');
+    if (chartInst) chartInst.destroy();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    document.getElementById('chartStats').innerHTML = "No historical data available for this currency pair.";
+    document.getElementById('chartStats').innerHTML =
+      "Error loading historical data.";
   }
 }
+
 document.getElementById('chartPeriod').addEventListener('change', renderCurrencyChart);
-document.getElementById('from').addEventListener('change', renderCurrencyChart);
-document.getElementById('to').addEventListener('change', renderCurrencyChart);
-document.addEventListener('DOMContentLoaded', renderCurrencyChart);
 
 // ----- (7) Financial Tips -----
 const tips = [
@@ -233,7 +320,10 @@ let tipNum = 0;
 function showTip() {
   document.getElementById('financialTip').textContent = tips[tipNum];
 }
-document.getElementById('tipBlock').addEventListener('click', ()=>{ tipNum = (tipNum+1)%tips.length; showTip(); });
+document.getElementById('tipBlock').addEventListener('click', ()=>{
+  tipNum = (tipNum+1)%tips.length;
+  showTip();
+});
 document.addEventListener('DOMContentLoaded', showTip);
 
 // ----- (8) TradingView indices ticker -----
