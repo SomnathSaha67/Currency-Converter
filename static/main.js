@@ -107,11 +107,15 @@ async function populate() {
   const dateEl = document.getElementById('date');
   const errorEl = document.getElementById('errorArea');
   const providerArea = document.getElementById('providerArea');
+
   const favListEl = document.getElementById('favoritesList');
   const alertRateEl = document.getElementById('alertRate');
   const alertDirectionEl = document.getElementById('alertDirection');
   const alertBannerEl = document.getElementById('alertBanner');
   const alertSummaryEl = document.getElementById('alertSummary');
+
+  const scenarioBodyEl = document.getElementById('scenarioBody');
+  const scenarioHeaderEl = document.getElementById('scenarioHeader');
 
   resultArea.textContent = 'Loading currencies…';
   try {
@@ -213,6 +217,49 @@ async function populate() {
     }
   }
 
+  // Scenario planner: build table rows for hypothetical rate moves
+  function updateScenarioTable(baseAmount, baseRate, fromCode, toCode) {
+    if (!scenarioBodyEl || !scenarioHeaderEl) return;
+    if (typeof baseRate !== 'number' || !isFinite(baseRate)) {
+      scenarioBodyEl.innerHTML = '';
+      scenarioHeaderEl.textContent = 'Scenario planner will appear when a valid live rate is available.';
+      return;
+    }
+
+    const amount = Number(baseAmount);
+    if (!amount || !isFinite(amount)) {
+      scenarioBodyEl.innerHTML = '';
+      scenarioHeaderEl.textContent = 'Scenario planner will appear when a valid live rate is available.';
+      return;
+    }
+
+    const deltas = [-0.05, -0.03, -0.01, 0.01, 0.03, 0.05];
+    const labels = {
+      '-0.05': '-5%',
+      '-0.03': '-3%',
+      '-0.01': '-1%',
+      '0.01': '+1%',
+      '0.03': '+3%',
+      '0.05': '+5%'
+    };
+
+    let rows = '';
+    deltas.forEach(d => {
+      const newRate = baseRate * (1 + d);
+      const newAmount = amount * newRate;
+      rows += `
+        <tr>
+          <td>${labels[String(d)]}</td>
+          <td>${newRate.toFixed(6)} ${toCode}/${fromCode}</td>
+          <td>${newAmount.toFixed(6)} ${toCode}</td>
+        </tr>
+      `;
+    });
+    scenarioBodyEl.innerHTML = rows;
+    scenarioHeaderEl.textContent =
+      `If the rate for ${fromCode}→${toCode} moves up or down, your ${amount} ${fromCode} would convert to:`;
+  }
+
   // Core conversion logic extracted into a function so we can reuse it
   runConversion = async () => {
     const from = fromEl.value;
@@ -228,6 +275,7 @@ async function populate() {
     errorEl.textContent = '';
     alertBannerEl.style.display = 'none';
     alertBannerEl.textContent = '';
+    updateScenarioTable(null, null, from, to);
 
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       errorEl.textContent = "Please enter a valid, positive amount for conversion.";
@@ -268,6 +316,8 @@ async function populate() {
       resultArea.innerHTML = createBatchTable(batchResults, from, amount);
       providerArea.textContent = "Provider: Multiple";
       metaArea.innerHTML = "";
+      // In ALL mode, scenario planner is not meaningful for a single rate
+      updateScenarioTable(null, null, from, to);
       return;
     }
 
@@ -300,18 +350,21 @@ async function populate() {
         `;
         metaArea.innerHTML = "";
         updateAlertBanner(rate);
+        updateScenarioTable(amt, rate, fr, toCode);
       } else {
         resultArea.innerHTML = `
           <div class="result-main">
             ${amt} ${fr} = ${result} ${toCode}
           </div>`;
         metaArea.innerHTML = "";
+        updateScenarioTable(null, null, fr, toCode);
       }
       providerArea.textContent = "Provider: " + provider;
     } catch (err) {
       resultArea.textContent = 'Error performing conversion.';
       metaArea.textContent = String(err);
       providerArea.textContent = "";
+      updateScenarioTable(null, null, from, to);
     }
   };
 
@@ -358,7 +411,12 @@ async function populate() {
     renderAlertSummary();
   });
 
-  // When pair changes, update alert summary text
+  // Auto-convert: debounce to avoid too many requests while typing
+  const debouncedAutoConvert = debounce(() => {
+    if (runConversion) runConversion();
+  }, 600);
+
+  // When pair changes, update alert summary text and recalc
   fromEl.addEventListener('change', () => {
     debouncedAutoConvert();
     renderAlertSummary();
@@ -367,11 +425,6 @@ async function populate() {
     debouncedAutoConvert();
     renderAlertSummary();
   });
-
-  // Auto-convert: debounce to avoid too many requests while typing
-  const debouncedAutoConvert = debounce(() => {
-    if (runConversion) runConversion();
-  }, 600);
 
   // Trigger auto-convert when user edits amount, date
   amountEl.addEventListener('input', debouncedAutoConvert);
