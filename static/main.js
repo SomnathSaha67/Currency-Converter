@@ -205,7 +205,6 @@ async function populate() {
     fromEl.value = toEl.value !== "ALL" ? toEl.value : tmp;
     toEl.value = tmp;
     if (runConversion) runConversion();
-    renderCurrencyChart(); // also update chart when swapped
   });
 
   // Auto-convert: debounce to avoid too many requests while typing
@@ -218,11 +217,9 @@ async function populate() {
   dateEl.addEventListener('change', debouncedAutoConvert);
   fromEl.addEventListener('change', () => {
     debouncedAutoConvert();
-    renderCurrencyChart();
   });
   toEl.addEventListener('change', () => {
     debouncedAutoConvert();
-    renderCurrencyChart();
   });
 }
 
@@ -235,75 +232,6 @@ async function populate() {
 });
 
 document.addEventListener('DOMContentLoaded', populate);
-
-// ----- (1) CHART: Historical exchange trend -----
-let chartInst = null;
-
-async function renderCurrencyChart() {
-  const fromEl = document.getElementById('from');
-  const toEl = document.getElementById('to');
-  if (!fromEl || !toEl) return;
-
-  const from = fromEl.value;
-  const to = toEl.value;
-  const days = parseInt(document.getElementById('chartPeriod').value, 10);
-  const now = new Date();
-  const endDate = now.toISOString().split('T')[0];
-  const dt = new Date(now); dt.setDate(dt.getDate() - days);
-  const startDate = dt.toISOString().split('T')[0];
-
-  const url = `https://api.exchangerate.host/timeseries?start_date=${startDate}&end_date=${endDate}&base=${from}&symbols=${to}`;
-  try {
-    const r = await fetch(url);
-    const data = await r.json();
-    const labels = [];
-    const rates = [];
-    // sort dates so chart is ordered
-    const dates = Object.keys(data.rates || {}).sort();
-    for (let d of dates) {
-      labels.push(d);
-      rates.push(data.rates[d][to]);
-    }
-
-    const ctx = document.getElementById('currencyChart').getContext('2d');
-    if (chartInst) chartInst.destroy();
-    if (rates.length > 0 && rates.every(x => typeof x === 'number' && isFinite(x))) {
-      chartInst = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets:[{
-            label:`${from}→${to}`,
-            data: rates,
-            borderColor:'#6bfcbc',
-            fill:false
-          }]
-        },
-        options: {
-          scales:{x:{display:false},y:{beginAtZero:false}},
-          plugins:{legend:{display:false}}
-        }
-      });
-      const min = Math.min(...rates), max = Math.max(...rates),
-            avg = rates.reduce((a,b)=>a+b,0)/rates.length;
-      const volatility = ((max-min)/avg*100).toFixed(2);
-      document.getElementById('chartStats').innerHTML =
-        `High: ${max.toFixed(4)}, Low: ${min.toFixed(4)}, Avg: ${avg.toFixed(4)}, Volatility: ${volatility}%`;
-    } else {
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      document.getElementById('chartStats').innerHTML =
-        "No historical data available for this currency pair.";
-    }
-  } catch (e) {
-    const ctx = document.getElementById('currencyChart').getContext('2d');
-    if (chartInst) chartInst.destroy();
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    document.getElementById('chartStats').innerHTML =
-      "Error loading historical data.";
-  }
-}
-
-document.getElementById('chartPeriod').addEventListener('change', renderCurrencyChart);
 
 // ----- (7) Financial Tips -----
 const tips = [

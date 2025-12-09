@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,700,900|Montserrat:700&display=swap">
   <link rel="stylesheet" href="/static/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
@@ -64,27 +63,13 @@
       <section id="providerBox">
         <div id="providerArea"></div>
       </section>
-      <!-- Exchange Rate Chart -->
-      <section id="chartBlock" class="chart-section">
-        <h2 class="chart-title">Exchange Rate Trend</h2>
-        <div class="chart-controls">
-          <label for="chartPeriod">Period:</label>
-          <select id="chartPeriod">
-            <option value="7">1 Week</option>
-            <option value="30" selected>1 Month</option>
-            <option value="90">3 Months</option>
-            <option value="180">6 Months</option>
-            <option value="365">1 Year</option>
-          </select>
-        </div>
-        <canvas id="currencyChart" height="92"></canvas>
-        <div id="chartStats"></div>
-      </section>
+
       <!-- Financial Tips -->
       <section id="tipBlock" class="tip-section">
         <h2 class="tip-title">Financial Tip</h2>
         <div id="financialTip"></div>
       </section>
+
       <!-- Indices Ticker Widget -->
       <section id="tvBlock" class="tv-section">
         <h2 class="tv-title">Global Market Indices</h2>
