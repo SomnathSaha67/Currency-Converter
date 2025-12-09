@@ -12,6 +12,8 @@
   --provider-bg: rgba(36, 71, 122, 0.81);
   --provider-text: #6bfcbc;
   --primary-btn-bg: linear-gradient(90deg, #6bfcbc 0%, #4773fa 100%);
+  --alert-good-bg: #0f5132;
+  --alert-good-border: #198754;
 }
 [data-theme="light"] {
   --bg: linear-gradient(135deg,#f9fafd 0%,#cde2f9 100%);
@@ -27,6 +29,8 @@
   --provider-bg: #a5b9dd;
   --provider-text: #222950;
   --primary-btn-bg: linear-gradient(90deg,#4773fa 0%,#6bfcbc 100%);
+  --alert-good-bg: #d1e7dd;
+  --alert-good-border: #0f5132;
 }
 body, html {
   min-height: 100vh;
@@ -249,6 +253,25 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 1.01em;
   font-weight: 700;
 }
+
+/* Alert banner for smart rate alerts */
+#alertBanner {
+  display: none;
+  margin: 0.6em auto 0;
+  max-width: 415px;
+  width: 100%;
+  padding: 0.6em 0.9em;
+  border-radius: 10px;
+  background: var(--alert-good-bg);
+  border: 1px solid var(--alert-good-border);
+  color: #f8f9fa;
+  font-size: 0.95rem;
+  text-align: left;
+}
+[data-theme="light"] #alertBanner {
+  color: #0f5132;
+}
+
 footer {
   color: var(--text-highlight);
   font-size: 1.09em;
@@ -279,13 +302,13 @@ footer {
     min-width: 99vw;
     max-width: 99vw;
   }
-  #resultBox {
+  #resultBox, #alertBanner {
     max-width: 99vw;
   }
 }
 
-/* Tips + TradingView sections */
-.chart-section, .tip-section, .tv-section {
+/* Sections below result */
+.section-block {
   margin: 1.7em auto;
   background: var(--glass-bg);
   border-radius: 15px;
@@ -293,7 +316,63 @@ footer {
   padding: 1.2em 1.3em 1.3em 1.3em;
   max-width: 640px;
 }
-.chart-title, .tip-title, .tv-title {
+.section-title {
+  font-size: 1.15em;
+  color: var(--text-accent, #46aafc);
+  font-weight: 900;
+  margin-bottom: 0.5em;
+}
+
+/* Favorites strip */
+.favorites-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  justify-content: flex-start;
+  margin-top: 0.6em;
+}
+.favorite-chip {
+  border-radius: 999px;
+  padding: 0.25em 0.75em;
+  border: 1px solid var(--text-accent);
+  background: rgba(0,0,0,0.15);
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 0.93rem;
+}
+.favorite-chip:hover {
+  background: var(--text-accent);
+  color: var(--text-main);
+}
+
+/* Alert controls */
+.alert-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+  margin-top: 0.6em;
+}
+.alert-controls input[type="number"],
+.alert-controls select {
+  min-width: 120px;
+  max-width: 160px;
+}
+.alert-summary {
+  margin-top: 0.5em;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.tip-section, .tv-section, .favorites-section, .alert-section {
+  margin: 1.7em auto;
+  background: var(--glass-bg);
+  border-radius: 15px;
+  box-shadow: 0 2px 24px #26335518;
+  padding: 1.2em 1.3em 1.3em 1.3em;
+  max-width: 640px;
+}
+.tip-title, .tv-title, .favorites-title, .alert-title {
   font-size: 1.15em;
   color: var(--text-accent, #46aafc);
   font-weight: 900;
@@ -306,18 +385,17 @@ footer {
   min-height: 2.4em;
 }
 @media (max-width: 700px) {
-  .chart-section, .tip-section, .tv-section {
+  .tip-section, .tv-section, .favorites-section, .alert-section {
     padding: 0.7em 0.3em 1em 0.3em;
     max-width: 99vw;
   }
-}
-[data-theme="light"] .chart-title {
-  color: #2274e9;
 }
 [data-theme="light"] #financialTip {
   color: #2b9ae5;
 }
 [data-theme="light"] .tip-title,
-[data-theme="light"] .tv-title {
+[data-theme="light"] .tv-title,
+[data-theme="light"] .favorites-title,
+[data-theme="light"] .alert-title {
   color: #1557c0;
 }

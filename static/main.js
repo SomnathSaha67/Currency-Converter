@@ -49,6 +49,52 @@ function debounce(fn, delay) {
   };
 }
 
+// LocalStorage helpers for favorites and alerts
+const FAV_KEY = 'converter_favorites_v1';
+const ALERT_KEY = 'converter_alerts_v1';
+
+function loadFavorites() {
+  try {
+    const raw = localStorage.getItem(FAV_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveFavorites(favs) {
+  try {
+    localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+  } catch {
+    // ignore
+  }
+}
+
+function loadAlerts() {
+  try {
+    const raw = localStorage.getItem(ALERT_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw);
+    return obj && typeof obj === 'object' ? obj : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveAlerts(alerts) {
+  try {
+    localStorage.setItem(ALERT_KEY, JSON.stringify(alerts));
+  } catch {
+    // ignore
+  }
+}
+
+function pairKey(from, to) {
+  return `${from}→${to}`;
+}
+
 // This function will be assigned later, so auto-convert handlers can call it
 let runConversion = null;
 
@@ -61,6 +107,11 @@ async function populate() {
   const dateEl = document.getElementById('date');
   const errorEl = document.getElementById('errorArea');
   const providerArea = document.getElementById('providerArea');
+  const favListEl = document.getElementById('favoritesList');
+  const alertRateEl = document.getElementById('alertRate');
+  const alertDirectionEl = document.getElementById('alertDirection');
+  const alertBannerEl = document.getElementById('alertBanner');
+  const alertSummaryEl = document.getElementById('alertSummary');
 
   resultArea.textContent = 'Loading currencies…';
   try {
@@ -95,6 +146,73 @@ async function populate() {
     providerArea.textContent = "";
   }
 
+  // render favorites from storage
+  function renderFavorites() {
+    const favs = loadFavorites();
+    favListEl.innerHTML = '';
+    if (!favs.length) {
+      favListEl.textContent = 'No favorites yet.';
+      return;
+    }
+    favs.forEach(({ from, to }) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'favorite-chip';
+      btn.textContent = `${from} → ${to}`;
+      btn.addEventListener('click', () => {
+        fromEl.value = from;
+        toEl.value = to;
+        if (runConversion) runConversion();
+      });
+      favListEl.appendChild(btn);
+    });
+  }
+
+  renderFavorites();
+
+  // render alert summary text
+  function renderAlertSummary() {
+    const alerts = loadAlerts();
+    const key = pairKey(fromEl.value, toEl.value);
+    const a = alerts[key];
+    if (!a || !a.rate || isNaN(a.rate)) {
+      alertSummaryEl.textContent = 'No alert set for this pair.';
+      return;
+    }
+    alertSummaryEl.textContent =
+      `Alert when rate ${a.direction === 'above' ? '≥' : '≤'} ${a.rate} (${fromEl.value}→${toEl.value}).`;
+  }
+
+  renderAlertSummary();
+
+  function updateAlertBanner(currentRate) {
+    const alerts = loadAlerts();
+    const key = pairKey(fromEl.value, toEl.value);
+    const a = alerts[key];
+    if (!a || !a.rate || isNaN(a.rate) || typeof currentRate !== 'number') {
+      alertBannerEl.style.display = 'none';
+      alertBannerEl.textContent = '';
+      return;
+    }
+    const target = Number(a.rate);
+    let show = false;
+    let msg = '';
+    if (a.direction === 'below' && currentRate <= target) {
+      show = true;
+      msg = `Good time to convert: current rate ${currentRate.toFixed(6)} ≤ your target ${target}.`;
+    } else if (a.direction === 'above' && currentRate >= target) {
+      show = true;
+      msg = `Good time to convert: current rate ${currentRate.toFixed(6)} ≥ your target ${target}.`;
+    }
+    if (show) {
+      alertBannerEl.textContent = msg;
+      alertBannerEl.style.display = 'block';
+    } else {
+      alertBannerEl.style.display = 'none';
+      alertBannerEl.textContent = '';
+    }
+  }
+
   // Core conversion logic extracted into a function so we can reuse it
   runConversion = async () => {
     const from = fromEl.value;
@@ -108,6 +226,8 @@ async function populate() {
     resultArea.textContent = 'Converting…';
     metaArea.textContent = '';
     errorEl.textContent = '';
+    alertBannerEl.style.display = 'none';
+    alertBannerEl.textContent = '';
 
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       errorEl.textContent = "Please enter a valid, positive amount for conversion.";
@@ -179,6 +299,7 @@ async function populate() {
           </div>
         `;
         metaArea.innerHTML = "";
+        updateAlertBanner(rate);
       } else {
         resultArea.innerHTML = `
           <div class="result-main">
@@ -205,6 +326,46 @@ async function populate() {
     fromEl.value = toEl.value !== "ALL" ? toEl.value : tmp;
     toEl.value = tmp;
     if (runConversion) runConversion();
+    renderAlertSummary();
+  });
+
+  // Add to favorites button
+  document.getElementById('addFavoriteBtn').addEventListener('click', () => {
+    const from = fromEl.value;
+    const to = toEl.value;
+    if (!from || !to || to === 'ALL') return;
+    const favs = loadFavorites();
+    const exists = favs.some(f => f.from === from && f.to === to);
+    if (!exists) {
+      favs.unshift({ from, to });
+      if (favs.length > 5) favs.pop();
+      saveFavorites(favs);
+      renderFavorites();
+    }
+  });
+
+  // Save alert button
+  document.getElementById('saveAlertBtn').addEventListener('click', () => {
+    const from = fromEl.value;
+    const to = toEl.value;
+    if (!from || !to || to === 'ALL') return;
+    const rateVal = parseFloat(alertRateEl.value);
+    if (!rateVal || rateVal <= 0) return;
+    const dir = alertDirectionEl.value === 'above' ? 'above' : 'below';
+    const alerts = loadAlerts();
+    alerts[pairKey(from, to)] = { rate: rateVal, direction: dir };
+    saveAlerts(alerts);
+    renderAlertSummary();
+  });
+
+  // When pair changes, update alert summary text
+  fromEl.addEventListener('change', () => {
+    debouncedAutoConvert();
+    renderAlertSummary();
+  });
+  toEl.addEventListener('change', () => {
+    debouncedAutoConvert();
+    renderAlertSummary();
   });
 
   // Auto-convert: debounce to avoid too many requests while typing
@@ -212,15 +373,9 @@ async function populate() {
     if (runConversion) runConversion();
   }, 600);
 
-  // Trigger auto-convert when user edits amount, date, from, to
+  // Trigger auto-convert when user edits amount, date
   amountEl.addEventListener('input', debouncedAutoConvert);
   dateEl.addEventListener('change', debouncedAutoConvert);
-  fromEl.addEventListener('change', () => {
-    debouncedAutoConvert();
-  });
-  toEl.addEventListener('change', () => {
-    debouncedAutoConvert();
-  });
 }
 
 // Pressing Enter triggers convert button
@@ -238,7 +393,7 @@ const tips = [
   "Diversify your savings across different strong currencies.",
   "Check for hidden conversion fees when exchanging money.",
   "Plan international payments when the currency is strongest.",
-  "Monitor currency charts to spot trends before converting.",
+  "Monitor currency trends before large conversions.",
   "Small daily fluctuations can add up for big transactions—watch volatility.",
   "Set exchange rate alerts if you need a specific rate soon.",
   "Understand how inflation affects currency value long-term.",

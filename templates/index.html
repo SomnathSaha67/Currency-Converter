@@ -56,12 +56,49 @@
         </div>
         <div id="errorArea" aria-live="assertive"></div>
       </form>
+
       <section id="resultBox">
         <div class="result" id="resultArea" aria-live="polite"></div>
         <div class="meta" id="metaArea"></div>
       </section>
+
+      <!-- Smart rate alert banner -->
+      <div id="alertBanner" aria-live="polite"></div>
+
       <section id="providerBox">
         <div id="providerArea"></div>
+      </section>
+
+      <!-- Favorites section -->
+      <section class="favorites-section" aria-label="Favorite currency pairs">
+        <h2 class="favorites-title">Favorite Pairs</h2>
+        <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);">
+          Pin your most-used pairs for one-click access.
+        </p>
+        <button type="button" id="addFavoriteBtn" class="primary-btn" style="padding:0.5em 1.1em;font-size:0.95rem;margin-bottom:0.6em;">
+          Add current pair to favorites
+        </button>
+        <div id="favoritesList" class="favorites-row"></div>
+      </section>
+
+      <!-- Rate alert section -->
+      <section class="alert-section" aria-label="Rate alerts">
+        <h2 class="alert-title">Smart Rate Alert</h2>
+        <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);">
+          Set a target rate for the selected pair. When the live rate crosses your target, a banner will highlight it.
+        </p>
+        <div class="alert-controls">
+          <span>Alert when rate</span>
+          <select id="alertDirection" aria-label="Alert direction">
+            <option value="below">falls to or below</option>
+            <option value="above">rises to or above</option>
+          </select>
+          <input id="alertRate" type="number" step="any" min="0" placeholder="Target rate" aria-label="Target rate" />
+          <button type="button" id="saveAlertBtn" class="primary-btn" style="padding:0.5em 1.1em;font-size:0.95rem;">
+            Save alert
+          </button>
+        </div>
+        <div id="alertSummary" class="alert-summary"></div>
       </section>
 
       <!-- Financial Tips -->
