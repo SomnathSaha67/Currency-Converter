@@ -41,8 +41,9 @@
         <span class="desc">Convert any currency—minimal, instant, always updated.</span>
       </div>
     </header>
+
     <main>
-      <!-- Converter form/results -->
+      <!-- Converter form/results (top row, full width) -->
       <form id="convertForm" autocomplete="off" onsubmit="return false;">
         <div class="input-row glass-input">
           <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" />
@@ -69,7 +70,7 @@
         <div id="providerArea"></div>
       </section>
 
-      <!-- Scenario Planner -->
+      <!-- Left column: Scenario Planner -->
       <section class="scenario-section" aria-label="Scenario planner">
         <h2 class="scenario-title">What if the rate changes?</h2>
         <p id="scenarioHeader">
@@ -89,7 +90,7 @@
         </table>
       </section>
 
-      <!-- Trip Budget Helper -->
+      <!-- Left column: Trip Budget Helper -->
       <section class="trip-section" aria-label="Trip budget helper">
         <h2 class="trip-title">Trip Budget Helper</h2>
         <p class="trip-desc">
@@ -119,7 +120,7 @@
         <div id="tripResult" class="trip-result" aria-live="polite"></div>
       </section>
 
-      <!-- Favorites section -->
+      <!-- Right column: Favorites -->
       <section class="favorites-section" aria-label="Favorite currency pairs">
         <h2 class="favorites-title">Favorite Pairs</h2>
         <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);">
@@ -131,7 +132,7 @@
         <div id="favoritesList" class="favorites-row"></div>
       </section>
 
-      <!-- Rate alert section -->
+      <!-- Right column: Rate alert -->
       <section class="alert-section" aria-label="Rate alerts">
         <h2 class="alert-title">Smart Rate Alert</h2>
         <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);">
@@ -151,18 +152,19 @@
         <div id="alertSummary" class="alert-summary"></div>
       </section>
 
-      <!-- Financial Tips -->
+      <!-- Right column: Financial Tips -->
       <section id="tipBlock" class="tip-section">
         <h2 class="tip-title">Financial Tip</h2>
         <div id="financialTip"></div>
       </section>
 
-      <!-- Indices Ticker Widget -->
+      <!-- Right column: Indices Ticker Widget -->
       <section id="tvBlock" class="tv-section">
         <h2 class="tv-title">Global Market Indices</h2>
         <div id="tradingview-widget"></div>
       </section>
     </main>
+
     <footer>
       Built by Somnath Saha | Minimal design, 2025
     </footer>

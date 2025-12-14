@@ -32,35 +32,31 @@
   --alert-good-bg: #d1e7dd;
   --alert-good-border: #0f5132;
 }
-body, html {
-  min-height: 100vh;
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   background: var(--bg);
   color: var(--text-main);
-  height: 100vh;
   box-sizing: border-box;
   transition: background 0.25s, color 0.25s;
 }
 .container {
-  max-width: 820px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2em 4em;
-  text-align: center;
+  padding: 1.5em 2em;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  background: var(--glass-bg);
-  border-radius: 28px;
-  box-shadow: 0 8px 40px #183a5b27;
-  backdrop-filter: blur(14px);
-  transition: background 0.25s;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 .main-header {
-  margin-top: 34px;
-  margin-bottom: 18px;
+  margin-top: 16px;
+  margin-bottom: 12px;
   position: relative;
   z-index: 1;
 }
@@ -99,7 +95,7 @@ body, html {
 .sub-header {
   font-size: 1.15rem;
   color: var(--text-secondary);
-  margin-bottom: 1.35em;
+  margin-bottom: 1em;
   line-height: 1.24em;
 }
 .sub-header .tagline {
@@ -116,9 +112,39 @@ body, html {
   font-size: 1.09rem;
   font-weight: 500;
 }
+
+/* Dashboard grid layout */
 main {
-  width: 100%;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 2fr 1.6fr;
+  grid-auto-rows: min-content;
+  gap: 1.2em 1.4em;
+  align-content: start;
 }
+
+/* Top full-width row */
+#convertForm,
+#resultBox,
+#alertBanner,
+#providerBox {
+  grid-column: 1 / -1;
+}
+
+/* Left column */
+.scenario-section,
+.trip-section {
+  grid-column: 1 / 2;
+}
+
+/* Right column */
+.favorites-section,
+.alert-section,
+.tip-section,
+.tv-section {
+  grid-column: 2 / 3;
+}
+
 .input-row {
   display: flex;
   flex-direction: row;
@@ -133,7 +159,7 @@ main {
   box-shadow: 0 1px 8px #328fff22;
   backdrop-filter: blur(8px);
   padding: 0.9em 0.15em;
-  margin-bottom: 1.5em;
+  margin-bottom: 1em;
 }
 input, select {
   background: var(--input-bg);
@@ -195,6 +221,7 @@ input[type="number"]::-webkit-outer-spin-button {
   background: var(--text-highlight);
   color: var(--text-main);
 }
+
 #resultBox {
   display: flex;
   flex-direction: column;
@@ -203,9 +230,9 @@ input[type="number"]::-webkit-outer-spin-button {
   background: var(--result-bg);
   border-radius: 13px;
   box-shadow: 0 1.5px 8px #363ae144;
-  margin: 1.1em auto 0.7em auto;
+  margin: 0.7em auto 0.3em auto;
   min-height: 56px;
-  max-width: 415px;
+  max-width: 520px;
   width: 100%;
   font-size: 1.17em;
   color: var(--result-text);
@@ -254,11 +281,11 @@ input[type="number"]::-webkit-outer-spin-button {
   font-weight: 700;
 }
 
-/* Alert banner for smart rate alerts */
+/* Alert banner */
 #alertBanner {
   display: none;
-  margin: 0.6em auto 0;
-  max-width: 415px;
+  margin: 0.4em auto 0;
+  max-width: 520px;
   width: 100%;
   padding: 0.6em 0.9em;
   border-radius: 10px;
@@ -272,51 +299,26 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #0f5132;
 }
 
-footer {
-  color: var(--text-highlight);
-  font-size: 1.09em;
-  margin: 2.6em auto 1em auto;
-  text-align: center;
-  opacity: 0.96;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-}
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.8);}
-  to   { opacity: 1; transform: scale(1);}
-}
-@media (max-width: 900px) {
-  .container {
-    max-width: 99vw;
-    padding: 1.1em 0.5em;
-    border-radius: 20px;
-  }
-  .main-header h1 {
-    font-size: 2.1rem;
-  }
-  .input-row {
-    flex-direction: column;
-    gap: 13px;
-  }
-  input, select {
-    min-width: 99vw;
-    max-width: 99vw;
-  }
-  #resultBox, #alertBanner {
-    max-width: 99vw;
-  }
-}
-
-/* Sections below result */
-.section-block {
-  margin: 1.7em auto;
+/* Sections (cards) */
+.scenario-section,
+.trip-section,
+.favorites-section,
+.alert-section,
+.tip-section,
+.tv-section {
   background: var(--glass-bg);
   border-radius: 15px;
   box-shadow: 0 2px 24px #26335518;
-  padding: 1.2em 1.3em 1.3em 1.3em;
-  max-width: 640px;
+  padding: 0.9em 1em 1em 1em;
+  margin: 0;
 }
-.section-title {
+.section-title,
+.scenario-title,
+.trip-title,
+.favorites-title,
+.alert-title,
+.tip-title,
+.tv-title {
   font-size: 1.15em;
   color: var(--text-accent, #46aafc);
   font-weight: 900;
@@ -365,20 +367,6 @@ footer {
 }
 
 /* Scenario planner */
-.scenario-section {
-  margin: 1.7em auto;
-  background: var(--glass-bg);
-  border-radius: 15px;
-  box-shadow: 0 2px 24px #26335518;
-  padding: 1.2em 1.3em 1.3em 1.3em;
-  max-width: 640px;
-}
-.scenario-title {
-  font-size: 1.15em;
-  color: var(--text-accent, #46aafc);
-  font-weight: 900;
-  margin-bottom: 0.4em;
-}
 #scenarioHeader {
   font-size: 0.96rem;
   color: var(--text-secondary);
@@ -399,7 +387,6 @@ footer {
   color: var(--text-secondary);
   font-weight: 700;
 }
-/* Richer scenario colors */
 .scenario-move-loss {
   color: #ff6b6b;
   font-weight: 700;
@@ -409,21 +396,7 @@ footer {
   font-weight: 700;
 }
 
-/* Tip / TV / Favorites / Alert sections */
-.tip-section, .tv-section, .favorites-section, .alert-section {
-  margin: 1.7em auto;
-  background: var(--glass-bg);
-  border-radius: 15px;
-  box-shadow: 0 2px 24px #26335518;
-  padding: 1.2em 1.3em 1.3em 1.3em;
-  max-width: 640px;
-}
-.tip-title, .tv-title, .favorites-title, .alert-title {
-  font-size: 1.15em;
-  color: var(--text-accent, #46aafc);
-  font-weight: 900;
-  margin-bottom: 0.5em;
-}
+/* Tips / TV */
 #financialTip {
   font-size: 1.11em;
   color: #6bfcbc;
@@ -432,20 +405,6 @@ footer {
 }
 
 /* Trip Budget Helper */
-.trip-section {
-  margin: 1.7em auto;
-  background: var(--glass-bg);
-  border-radius: 15px;
-  box-shadow: 0 2px 24px #26335518;
-  padding: 1.2em 1.3em 1.3em 1.3em;
-  max-width: 640px;
-}
-.trip-title {
-  font-size: 1.15em;
-  color: var(--text-accent, #46aafc);
-  font-weight: 900;
-  margin-bottom: 0.4em;
-}
 .trip-desc {
   margin: 0 0 0.7em 0;
   font-size: 0.96rem;
@@ -477,11 +436,49 @@ footer {
   font-weight: 700;
 }
 
-/* Responsive tweaks for small screens */
-@media (max-width: 700px) {
-  .tip-section, .tv-section, .favorites-section, .alert-section, .scenario-section, .trip-section {
-    padding: 0.7em 0.3em 1em 0.3em;
-    max-width: 99vw;
+footer {
+  color: var(--text-highlight);
+  font-size: 1.09em;
+  margin: 0.8em auto 0.4em auto;
+  text-align: center;
+  opacity: 0.96;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.8);}
+  to   { opacity: 1; transform: scale(1);}
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 900px) {
+  .container {
+    padding: 1.1em 0.8em;
+  }
+}
+@media (max-width: 768px) {
+  main {
+    display: block;
+  }
+  .input-row {
+    flex-direction: column;
+    gap: 13px;
+  }
+  input, select {
+    min-width: 100%;
+    max-width: 100%;
+  }
+  #resultBox, #alertBanner {
+    max-width: 100%;
+  }
+  .scenario-section,
+  .trip-section,
+  .favorites-section,
+  .alert-section,
+  .tip-section,
+  .tv-section {
+    margin: 1em 0.1em;
   }
 }
 
