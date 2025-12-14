@@ -81,11 +81,42 @@
               <th>Rate move</th>
               <th>New rate</th>
               <th>Converted amount</th>
+              <th>Difference vs now</th>
             </tr>
           </thead>
           <tbody id="scenarioBody">
           </tbody>
         </table>
+      </section>
+
+      <!-- Trip Budget Helper -->
+      <section class="trip-section" aria-label="Trip budget helper">
+        <h2 class="trip-title">Trip Budget Helper</h2>
+        <p class="trip-desc">
+          Plan a trip by converting your total budget into the destination currency and seeing a suggested daily budget.
+        </p>
+        <div class="trip-inputs">
+          <input
+            id="tripBudget"
+            type="number"
+            min="0"
+            step="any"
+            placeholder="Trip budget in home currency"
+            aria-label="Trip budget in home currency"
+          />
+          <input
+            id="tripDays"
+            type="number"
+            min="1"
+            step="1"
+            placeholder="Number of days"
+            aria-label="Number of trip days"
+          />
+          <button type="button" id="tripCalcBtn" class="primary-btn trip-btn">
+            Calculate trip budget
+          </button>
+        </div>
+        <div id="tripResult" class="trip-result" aria-live="polite"></div>
       </section>
 
       <!-- Favorites section -->

@@ -98,6 +98,13 @@ function pairKey(from, to) {
 // This function will be assigned later, so auto-convert handlers can call it
 let runConversion = null;
 
+// Store last successful live rate for trip helper
+let lastRateInfo = {
+  from: null,
+  to: null,
+  rate: null // number, rate for 1 from -> to
+};
+
 async function populate() {
   const amountEl = document.getElementById('amount');
   const fromEl = document.getElementById('from');
@@ -116,6 +123,12 @@ async function populate() {
 
   const scenarioBodyEl = document.getElementById('scenarioBody');
   const scenarioHeaderEl = document.getElementById('scenarioHeader');
+
+  // Trip helper elements
+  const tripBudgetEl = document.getElementById('tripBudget');
+  const tripDaysEl = document.getElementById('tripDays');
+  const tripCalcBtn = document.getElementById('tripCalcBtn');
+  const tripResultEl = document.getElementById('tripResult');
 
   resultArea.textContent = 'Loading currencies…';
   try {
@@ -217,7 +230,7 @@ async function populate() {
     }
   }
 
-  // Scenario planner: build table rows for hypothetical rate moves
+  // Richer Scenario planner: more granular steps + gain/loss coloring
   function updateScenarioTable(baseAmount, baseRate, fromCode, toCode) {
     if (!scenarioBodyEl || !scenarioHeaderEl) return;
     if (typeof baseRate !== 'number' || !isFinite(baseRate)) {
@@ -233,31 +246,96 @@ async function populate() {
       return;
     }
 
-    const deltas = [-0.05, -0.03, -0.01, 0.01, 0.03, 0.05];
+    // Expanded set of deltas, including 0 as baseline
+    const deltas = [-0.10, -0.05, -0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03, 0.05, 0.10];
     const labels = {
+      '-0.10': '-10%',
       '-0.05': '-5%',
       '-0.03': '-3%',
+      '-0.02': '-2%',
       '-0.01': '-1%',
+      '0': 'Current rate',
       '0.01': '+1%',
+      '0.02': '+2%',
       '0.03': '+3%',
-      '0.05': '+5%'
+      '0.05': '+5%',
+      '0.10': '+10%'
     };
+
+    const currentAmountDest = amount * baseRate;
 
     let rows = '';
     deltas.forEach(d => {
       const newRate = baseRate * (1 + d);
       const newAmount = amount * newRate;
+      const diff = newAmount - currentAmountDest;
+
+      let moveClass = '';
+      if (d < 0) {
+        // Rate falls → you receive less destination currency → loss
+        moveClass = 'scenario-move-loss';
+      } else if (d > 0) {
+        // Rate rises → you receive more destination currency → gain
+        moveClass = 'scenario-move-gain';
+      }
+
+      const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+      const absDiff = Math.abs(diff);
+
       rows += `
         <tr>
-          <td>${labels[String(d)]}</td>
+          <td class="${moveClass}">${labels[String(d)]}</td>
           <td>${newRate.toFixed(6)} ${toCode}/${fromCode}</td>
           <td>${newAmount.toFixed(6)} ${toCode}</td>
+          <td>${sign}${absDiff.toFixed(6)} ${toCode} vs now</td>
         </tr>
       `;
     });
     scenarioBodyEl.innerHTML = rows;
     scenarioHeaderEl.textContent =
-      `If the rate for ${fromCode}→${toCode} moves up or down, your ${amount} ${fromCode} would convert to:`;
+      `If the rate for ${fromCode}→${toCode} moves, your ${amount} ${fromCode} would convert to (compared to the current rate):`;
+  }
+
+  // Trip helper calculation using lastRateInfo
+  function calculateTripBudget() {
+    if (!tripBudgetEl || !tripDaysEl || !tripResultEl) return;
+
+    const totalBudget = parseFloat(tripBudgetEl.value);
+    const days = parseInt(tripDaysEl.value, 10);
+
+    if (!totalBudget || totalBudget <= 0 || !days || days <= 0) {
+      tripResultEl.textContent = "Enter a positive trip budget and number of days.";
+      return;
+    }
+
+    const fromCode = fromEl.value;
+    const toCode = toEl.value;
+
+    // Only meaningful when converting between two real currencies, not ALL
+    if (toCode === "ALL") {
+      tripResultEl.textContent = "Trip helper works when a single destination currency is selected, not ALL.";
+      return;
+    }
+
+    // Need a valid last live rate for this pair
+    if (
+      !lastRateInfo.rate ||
+      typeof lastRateInfo.rate !== 'number' ||
+      lastRateInfo.from !== fromCode ||
+      lastRateInfo.to !== toCode
+    ) {
+      tripResultEl.textContent = "Run a conversion first to get a live rate for this pair.";
+      return;
+    }
+
+    const rate = lastRateInfo.rate; // 1 from -> to
+    const totalDestination = totalBudget * rate;
+    const perDayDestination = totalDestination / days;
+
+    tripResultEl.innerHTML =
+      `<span class="trip-result-strong">${totalBudget.toFixed(2)} ${fromCode}</span> over ${days} day(s) is ` +
+      `<span class="trip-result-strong">${totalDestination.toFixed(2)} ${toCode}</span> in total, ` +
+      `around <span class="trip-result-strong">${perDayDestination.toFixed(2)} ${toCode}</span> per day.`;
   }
 
   // Core conversion logic extracted into a function so we can reuse it
@@ -276,6 +354,12 @@ async function populate() {
     alertBannerEl.style.display = 'none';
     alertBannerEl.textContent = '';
     updateScenarioTable(null, null, from, to);
+
+    // Reset last rate info; will be set again on success
+    lastRateInfo = { from: null, to: null, rate: null };
+    if (tripResultEl) {
+      tripResultEl.textContent = "";
+    }
 
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       errorEl.textContent = "Please enter a valid, positive amount for conversion.";
@@ -349,6 +433,14 @@ async function populate() {
           </div>
         `;
         metaArea.innerHTML = "";
+
+        // Store last rate for trip helper
+        lastRateInfo = {
+          from: fr,
+          to: toCode,
+          rate: typeof rate === 'number' ? rate : Number(rate)
+        };
+
         updateAlertBanner(rate);
         updateScenarioTable(amt, rate, fr, toCode);
       } else {
@@ -429,6 +521,11 @@ async function populate() {
   // Trigger auto-convert when user edits amount, date
   amountEl.addEventListener('input', debouncedAutoConvert);
   dateEl.addEventListener('change', debouncedAutoConvert);
+
+  // Trip helper button
+  if (tripCalcBtn) {
+    tripCalcBtn.addEventListener('click', calculateTripBudget);
+  }
 }
 
 // Pressing Enter triggers convert button

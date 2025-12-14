@@ -399,7 +399,17 @@ footer {
   color: var(--text-secondary);
   font-weight: 700;
 }
+/* Richer scenario colors */
+.scenario-move-loss {
+  color: #ff6b6b;
+  font-weight: 700;
+}
+.scenario-move-gain {
+  color: var(--text-accent);
+  font-weight: 700;
+}
 
+/* Tip / TV / Favorites / Alert sections */
 .tip-section, .tv-section, .favorites-section, .alert-section {
   margin: 1.7em auto;
   background: var(--glass-bg);
@@ -420,12 +430,61 @@ footer {
   font-weight: 700;
   min-height: 2.4em;
 }
+
+/* Trip Budget Helper */
+.trip-section {
+  margin: 1.7em auto;
+  background: var(--glass-bg);
+  border-radius: 15px;
+  box-shadow: 0 2px 24px #26335518;
+  padding: 1.2em 1.3em 1.3em 1.3em;
+  max-width: 640px;
+}
+.trip-title {
+  font-size: 1.15em;
+  color: var(--text-accent, #46aafc);
+  font-weight: 900;
+  margin-bottom: 0.4em;
+}
+.trip-desc {
+  margin: 0 0 0.7em 0;
+  font-size: 0.96rem;
+  color: var(--text-secondary);
+}
+.trip-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+  align-items: center;
+  margin-bottom: 0.6em;
+}
+.trip-inputs input[type="number"] {
+  min-width: 140px;
+  max-width: 190px;
+}
+.trip-btn {
+  padding: 0.6em 1.3em;
+  font-size: 0.98rem;
+}
+.trip-result {
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+  text-align: left;
+  min-height: 1.7em;
+}
+.trip-result-strong {
+  color: var(--text-accent);
+  font-weight: 700;
+}
+
+/* Responsive tweaks for small screens */
 @media (max-width: 700px) {
-  .tip-section, .tv-section, .favorites-section, .alert-section, .scenario-section {
+  .tip-section, .tv-section, .favorites-section, .alert-section, .scenario-section, .trip-section {
     padding: 0.7em 0.3em 1em 0.3em;
     max-width: 99vw;
   }
 }
+
 [data-theme="light"] #financialTip {
   color: #2b9ae5;
 }
@@ -433,6 +492,7 @@ footer {
 [data-theme="light"] .tv-title,
 [data-theme="light"] .favorites-title,
 [data-theme="light"] .alert-title,
-[data-theme="light"] .scenario-title {
+[data-theme="light"] .scenario-title,
+[data-theme="light"] .trip-title {
   color: #1557c0;
 }
