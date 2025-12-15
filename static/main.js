@@ -11,6 +11,37 @@ function createOption(code, text) {
   return o;
 }
 
+function createBatchSkeleton(from, amount, count = 8) {
+  let table = `
+  <div class="batch-table-glass">
+    <table class="batch-table">
+      <thead>
+        <tr>
+          <th>Currency</th>
+          <th>Amount</th>
+          <th>Rate (1 ${from})</th>
+          <th>Provider</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  for (let i = 0; i < count; i++) {
+    table += `
+      <tr class="batch-skeleton-row">
+        <td><span class="batch-skeleton-chip skeleton-pulse"></span></td>
+        <td><span class="batch-skeleton-text skeleton-pulse"></span></td>
+        <td><span class="batch-skeleton-text skeleton-pulse"></span></td>
+        <td><span class="batch-skeleton-text skeleton-pulse"></span></td>
+      </tr>
+    `;
+  }
+  table += `
+      </tbody>
+    </table>
+  </div>`;
+  return table;
+}
+
 function createBatchTable(results, from, amount) {
   let table = `
   <div class="batch-table-glass">
@@ -98,11 +129,12 @@ function pairKey(from, to) {
 // This function will be assigned later, so auto-convert handlers can call it
 let runConversion = null;
 
-// Store last successful live rate for trip helper
+// Store last successful live rate info
 let lastRateInfo = {
   from: null,
   to: null,
-  rate: null // number, rate for 1 from -> to
+  rate: null,      // number, rate for 1 from -> to
+  updatedAt: null  // Date object
 };
 
 async function populate() {
@@ -131,6 +163,7 @@ async function populate() {
   const tripResultEl = document.getElementById('tripResult');
 
   resultArea.textContent = 'Loading currencies…';
+  metaArea.textContent = '';
   try {
     const data = await fetchSymbols();
     if (!data.success) {
@@ -230,7 +263,7 @@ async function populate() {
     }
   }
 
-  // Richer Scenario planner: more granular steps + gain/loss coloring
+  // Scenario planner
   function updateScenarioTable(baseAmount, baseRate, fromCode, toCode) {
     if (!scenarioBodyEl || !scenarioHeaderEl) return;
     if (typeof baseRate !== 'number' || !isFinite(baseRate)) {
@@ -246,7 +279,6 @@ async function populate() {
       return;
     }
 
-    // Expanded set of deltas, including 0 as baseline
     const deltas = [-0.10, -0.05, -0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03, 0.05, 0.10];
     const labels = {
       '-0.10': '-10%',
@@ -263,8 +295,8 @@ async function populate() {
     };
 
     const currentAmountDest = amount * baseRate;
-
     let rows = '';
+
     deltas.forEach(d => {
       const newRate = baseRate * (1 + d);
       const newAmount = amount * newRate;
@@ -272,10 +304,8 @@ async function populate() {
 
       let moveClass = '';
       if (d < 0) {
-        // Rate falls → you receive less destination currency → loss
         moveClass = 'scenario-move-loss';
       } else if (d > 0) {
-        // Rate rises → you receive more destination currency → gain
         moveClass = 'scenario-move-gain';
       }
 
@@ -296,7 +326,7 @@ async function populate() {
       `If the rate for ${fromCode}→${toCode} moves, your ${amount} ${fromCode} would convert to (compared to the current rate):`;
   }
 
-  // Trip helper calculation using lastRateInfo
+  // Trip helper calculation
   function calculateTripBudget() {
     if (!tripBudgetEl || !tripDaysEl || !tripResultEl) return;
 
@@ -311,13 +341,11 @@ async function populate() {
     const fromCode = fromEl.value;
     const toCode = toEl.value;
 
-    // Only meaningful when converting between two real currencies, not ALL
     if (toCode === "ALL") {
       tripResultEl.textContent = "Trip helper works when a single destination currency is selected, not ALL.";
       return;
     }
 
-    // Need a valid last live rate for this pair
     if (
       !lastRateInfo.rate ||
       typeof lastRateInfo.rate !== 'number' ||
@@ -328,7 +356,7 @@ async function populate() {
       return;
     }
 
-    const rate = lastRateInfo.rate; // 1 from -> to
+    const rate = lastRateInfo.rate;
     const totalDestination = totalBudget * rate;
     const perDayDestination = totalDestination / days;
 
@@ -338,16 +366,16 @@ async function populate() {
       `around <span class="trip-result-strong">${perDayDestination.toFixed(2)} ${toCode}</span> per day.`;
   }
 
-  // Core conversion logic extracted into a function so we can reuse it
+  // Core conversion logic
   runConversion = async () => {
     const from = fromEl.value;
     const to = toEl.value;
     const amount = amountEl.value || '1';
     const date = dateEl.value;
 
-    // If fields not ready yet, skip
     if (!from || !to) return;
 
+    // loading state
     resultArea.textContent = 'Converting…';
     metaArea.textContent = '';
     errorEl.textContent = '';
@@ -355,8 +383,7 @@ async function populate() {
     alertBannerEl.textContent = '';
     updateScenarioTable(null, null, from, to);
 
-    // Reset last rate info; will be set again on success
-    lastRateInfo = { from: null, to: null, rate: null };
+    lastRateInfo = { from: null, to: null, rate: null, updatedAt: null };
     if (tripResultEl) {
       tripResultEl.textContent = "";
     }
@@ -374,6 +401,12 @@ async function populate() {
         return;
       }
       const batchCodes = Object.keys(data.symbols).filter(code => code !== from);
+
+      // skeleton while loading batch
+      resultArea.innerHTML = createBatchSkeleton(from, amount, Math.min(batchCodes.length, 10));
+      providerArea.textContent = "Provider: Loading…";
+      metaArea.innerHTML = "";
+
       const promises = batchCodes.map(code => {
         let url = `/api/convert?from=${encodeURIComponent(from)}&to=${encodeURIComponent(code)}&amount=${encodeURIComponent(amount)}`;
         if (date) url += `&date=${encodeURIComponent(date)}`;
@@ -400,7 +433,6 @@ async function populate() {
       resultArea.innerHTML = createBatchTable(batchResults, from, amount);
       providerArea.textContent = "Provider: Multiple";
       metaArea.innerHTML = "";
-      // In ALL mode, scenario planner is not meaningful for a single rate
       updateScenarioTable(null, null, from, to);
       return;
     }
@@ -413,6 +445,7 @@ async function populate() {
       if (!j.success) {
         resultArea.textContent = 'Conversion failed: ' + (j.error || 'unknown');
         providerArea.textContent = '';
+        metaArea.textContent = '';
         return;
       }
       const provider = j.provider || (j.data && j.data.provider) || '';
@@ -432,23 +465,26 @@ async function populate() {
             Rate: 1 ${fr} = ${rate.toFixed(6)} ${toCode}
           </div>
         `;
-        metaArea.innerHTML = "";
 
-        // Store last rate for trip helper
+        const now = new Date();
         lastRateInfo = {
           from: fr,
           to: toCode,
-          rate: typeof rate === 'number' ? rate : Number(rate)
+          rate: typeof rate === 'number' ? rate : Number(rate),
+          updatedAt: now
         };
 
-        updateAlertBanner(rate);
-        updateScenarioTable(amt, rate, fr, toCode);
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        metaArea.textContent = `Last updated at ${timeStr} (${provider}).`;
+
+        updateAlertBanner(lastRateInfo.rate);
+        updateScenarioTable(amt, lastRateInfo.rate, fr, toCode);
       } else {
         resultArea.innerHTML = `
           <div class="result-main">
             ${amt} ${fr} = ${result} ${toCode}
           </div>`;
-        metaArea.innerHTML = "";
+        metaArea.textContent = '';
         updateScenarioTable(null, null, fr, toCode);
       }
       providerArea.textContent = "Provider: " + provider;
@@ -460,7 +496,7 @@ async function populate() {
     }
   };
 
-  // Button click still works
+  // Button click
   document.getElementById('convertBtn').addEventListener('click', () => {
     if (runConversion) runConversion();
   });
@@ -474,7 +510,7 @@ async function populate() {
     renderAlertSummary();
   });
 
-  // Add to favorites button
+  // Add to favorites
   document.getElementById('addFavoriteBtn').addEventListener('click', () => {
     const from = fromEl.value;
     const to = toEl.value;
@@ -489,7 +525,7 @@ async function populate() {
     }
   });
 
-  // Save alert button
+  // Save alert
   document.getElementById('saveAlertBtn').addEventListener('click', () => {
     const from = fromEl.value;
     const to = toEl.value;
@@ -503,12 +539,12 @@ async function populate() {
     renderAlertSummary();
   });
 
-  // Auto-convert: debounce to avoid too many requests while typing
+  // Auto-convert: debounce
   const debouncedAutoConvert = debounce(() => {
     if (runConversion) runConversion();
   }, 600);
 
-  // When pair changes, update alert summary text and recalc
+  // Pair changes
   fromEl.addEventListener('change', () => {
     debouncedAutoConvert();
     renderAlertSummary();
@@ -518,24 +554,46 @@ async function populate() {
     renderAlertSummary();
   });
 
-  // Trigger auto-convert when user edits amount, date
+  // Amount & date changes
   amountEl.addEventListener('input', debouncedAutoConvert);
   dateEl.addEventListener('change', debouncedAutoConvert);
 
-  // Trip helper button
+  // Trip helper
   if (tripCalcBtn) {
     tripCalcBtn.addEventListener('click', calculateTripBudget);
   }
+
+  // Keyboard: Enter on inputs triggers convert
+  ['amount', 'from', 'to', 'date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('keypress', e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (runConversion) runConversion();
+      }
+    });
+  });
+
+  // Global keyboard shortcuts: Ctrl+Enter -> convert, 's' -> swap
+  document.addEventListener('keydown', e => {
+    const tag = e.target.tagName.toLowerCase();
+    const isInputLike = tag === 'input' || tag === 'select' || tag === 'textarea';
+
+    if (e.key === 'Enter' && e.ctrlKey) {
+      e.preventDefault();
+      if (runConversion) runConversion();
+    }
+
+    if (!isInputLike && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      const swapBtn = document.getElementById('swapBtn');
+      if (swapBtn) swapBtn.click();
+    }
+  });
 }
 
-// Pressing Enter triggers convert button
-['amount','from','to','date','convertBtn','swapBtn'].forEach(id=>{
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('keypress',e=>{
-    if(e.key==="Enter" || e.keyCode===13){el.click();}
-  });
-});
-
+// Initial populate
 document.addEventListener('DOMContentLoaded', populate);
 
 // ----- (7) Financial Tips -----
@@ -553,15 +611,16 @@ let tipNum = 0;
 function showTip() {
   document.getElementById('financialTip').textContent = tips[tipNum];
 }
-document.getElementById('tipBlock').addEventListener('click', ()=>{
-  tipNum = (tipNum+1)%tips.length;
+document.getElementById('tipBlock').addEventListener('click', () => {
+  tipNum = (tipNum + 1) % tips.length;
   showTip();
 });
 document.addEventListener('DOMContentLoaded', showTip);
 
 // ----- (8) TradingView indices ticker -----
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', function () {
   const tvDiv = document.getElementById('tradingview-widget');
+  if (!tvDiv) return;
   tvDiv.innerHTML = `<iframe src="https://s.tradingview.com/embed-widget/ticker-tape/?locale=en#%7B%22symbols%22%3A%5B%7B%22proName%22%3A%22FOREXCOM%3AEURUSD%22%2C%22title%22%3A%22EUR%2FUSD%22%7D%2C%7B%22proName%22%3A%22OANDA%3AUSDINR%22%2C%22title%22%3A%22USD%2FINR%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AUSDEUR%22%2C%22title%22%3A%22USD%2FEUR%22%7D%2C%7B%22proName%22%3A%22NASDAQ%3ANDS%22%2C%22title%22%3A%22NASDAQ%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AGBPUSD%22%2C%22title%22%3A%22GBP%2FUSD%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AUSDJPY%22%2C%22title%22%3A%22USD%2FJPY%22%7D%2C%7B%22proName%22%3A%22FX_IDC%3AUSDCAD%22%2C%22title%22%3A%22USD%2FCAD%22%7D%2C%7B%22proName%22%3A%22BITSTAMP%3ABTCUSD%22%2C%22title%22%3A%22BTC%2FUSD%22%7D%5D%2C%22colorTheme%22%3A%22dark%22%2C%22isTransparent%22%3Atrue%2C%22displayMode%22%3A%22adaptive%22%2C%22locale%22%3A%22en%22%7D"
     width="100%" height="48" style="border:none;overflow:hidden;" allowtransparency="true"></iframe>`;
 });
