@@ -137,6 +137,14 @@ let lastRateInfo = {
   updatedAt: null  // Date object
 };
 
+// Cache last gross conversion result (for fee simulator)
+let lastConversionGross = {
+  amountFrom: null,
+  amountTo: null,
+  fromCode: null,
+  toCode: null
+};
+
 async function populate() {
   const amountEl = document.getElementById('amount');
   const fromEl = document.getElementById('from');
@@ -161,6 +169,13 @@ async function populate() {
   const tripDaysEl = document.getElementById('tripDays');
   const tripCalcBtn = document.getElementById('tripCalcBtn');
   const tripResultEl = document.getElementById('tripResult');
+
+  // Fee simulator elements
+  const feeFlatEl = document.getElementById('feeFlat');
+  const feePercentEl = document.getElementById('feePercent');
+  const feeCalcBtn = document.getElementById('feeCalcBtn');
+  const feeResetBtn = document.getElementById('feeResetBtn');
+  const feeResultEl = document.getElementById('feeResult');
 
   resultArea.textContent = 'Loading currencies…';
   metaArea.textContent = '';
@@ -366,6 +381,77 @@ async function populate() {
       `around <span class="trip-result-strong">${perDayDestination.toFixed(2)} ${toCode}</span> per day.`;
   }
 
+  // Fee simulator calculation
+  function calculateFees() {
+    if (!feeResultEl) return;
+
+    const fromCode = fromEl.value;
+    const toCode = toEl.value;
+
+    if (toCode === "ALL") {
+      feeResultEl.textContent = "Fee simulator works when a single destination currency is selected, not ALL.";
+      return;
+    }
+
+    if (
+      lastConversionGross.amountFrom == null ||
+      lastConversionGross.amountTo == null ||
+      lastConversionGross.fromCode !== fromCode ||
+      lastConversionGross.toCode !== toCode
+    ) {
+      feeResultEl.textContent = "Run a conversion first to get a base amount, then apply fees.";
+      return;
+    }
+
+    const flatFee = parseFloat(feeFlatEl.value || "0");
+    const percentFee = parseFloat(feePercentEl.value || "0");
+
+    if ((isNaN(flatFee) || flatFee < 0) || (isNaN(percentFee) || percentFee < 0)) {
+      feeResultEl.textContent = "Enter non-negative values for fees.";
+      return;
+    }
+
+    const grossFrom = lastConversionGross.amountFrom;
+    const grossTo = lastConversionGross.amountTo;
+
+    const percentAmount = grossFrom * (percentFee / 100);
+    const totalFeeFrom = flatFee + percentAmount;
+
+    if (totalFeeFrom >= grossFrom) {
+      feeResultEl.textContent = "Total fees cannot be equal to or exceed the original amount.";
+      return;
+    }
+
+    const netFrom = grossFrom - totalFeeFrom;
+
+    if (!lastRateInfo.rate || typeof lastRateInfo.rate !== 'number') {
+      feeResultEl.textContent = "Live rate missing for this pair. Convert again to use fee simulator.";
+      return;
+    }
+
+    const rate = lastRateInfo.rate;
+    const netTo = netFrom * rate;
+
+    const effectiveRate = netTo / grossFrom;
+
+    feeResultEl.innerHTML =
+      `<span class="fee-strong">Before fees:</span> ${grossFrom.toFixed(2)} ${fromCode} → ${grossTo.toFixed(2)} ${toCode}. ` +
+      `<br><span class="fee-strong">Fees:</span> ${flatFee.toFixed(2)} ${fromCode} flat + ` +
+      `${percentFee.toFixed(2)}% = ${totalFeeFrom.toFixed(2)} ${fromCode} total. ` +
+      `<br><span class="fee-strong">After fees:</span> ${netFrom.toFixed(2)} ${fromCode} → ` +
+      `${netTo.toFixed(2)} ${toCode}. ` +
+      `<br><span class="fee-strong">Effective rate:</span> 1 ${fromCode} = ${effectiveRate.toFixed(6)} ${toCode} (vs raw ${rate.toFixed(6)}).`;
+  }
+
+  function resetFees() {
+    if (feeFlatEl) feeFlatEl.value = "";
+    if (feePercentEl) feePercentEl.value = "";
+    if (feeResultEl) {
+      feeResultEl.textContent =
+        "Run a conversion first, then add your bank or platform fees to simulate the net amount.";
+    }
+  }
+
   // Core conversion logic
   runConversion = async () => {
     const from = fromEl.value;
@@ -384,9 +470,11 @@ async function populate() {
     updateScenarioTable(null, null, from, to);
 
     lastRateInfo = { from: null, to: null, rate: null, updatedAt: null };
+    lastConversionGross = { amountFrom: null, amountTo: null, fromCode: null, toCode: null };
     if (tripResultEl) {
       tripResultEl.textContent = "";
     }
+    resetFees();
 
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       errorEl.textContent = "Please enter a valid, positive amount for conversion.";
@@ -472,6 +560,13 @@ async function populate() {
           to: toCode,
           rate: typeof rate === 'number' ? rate : Number(rate),
           updatedAt: now
+        };
+
+        lastConversionGross = {
+          amountFrom: Number(amt),
+          amountTo: typeof result === 'number' ? result : Number(result),
+          fromCode: fr,
+          toCode: toCode
         };
 
         const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -563,6 +658,14 @@ async function populate() {
     tripCalcBtn.addEventListener('click', calculateTripBudget);
   }
 
+  // Fee simulator buttons
+  if (feeCalcBtn) {
+    feeCalcBtn.addEventListener('click', calculateFees);
+  }
+  if (feeResetBtn) {
+    feeResetBtn.addEventListener('click', resetFees);
+  }
+
   // Keyboard: Enter on inputs triggers convert
   ['amount', 'from', 'to', 'date'].forEach(id => {
     const el = document.getElementById(id);
@@ -575,7 +678,7 @@ async function populate() {
     });
   });
 
-  // Global keyboard shortcuts: Ctrl+Enter -> convert, 's' -> swap
+  // Global keyboard shortcuts: Ctrl+Enter -> convert, 's' -> swap (when not typing in input)
   document.addEventListener('keydown', e => {
     const tag = e.target.tagName.toLowerCase();
     const isInputLike = tag === 'input' || tag === 'select' || tag === 'textarea';

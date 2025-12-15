@@ -63,6 +63,41 @@
         <div class="meta" id="metaArea"></div>
       </section>
 
+      <!-- Fee simulation (only meaningful when a single pair is selected) -->
+      <section class="fee-section" aria-label="Fee simulator">
+        <h2 class="fee-title">Fee Simulator</h2>
+        <p class="fee-desc">
+          Add a flat fee and/or a percentage fee to see how much you actually receive after fees.
+        </p>
+        <div class="fee-inputs">
+          <input
+            id="feeFlat"
+            type="number"
+            min="0"
+            step="any"
+            placeholder="Flat fee in source currency"
+            aria-label="Flat fee in source currency"
+          />
+          <input
+            id="feePercent"
+            type="number"
+            min="0"
+            step="any"
+            placeholder="Fee % on source amount"
+            aria-label="Percentage fee on source amount"
+          />
+          <button type="button" id="feeCalcBtn" class="primary-btn fee-btn">
+            Apply fees
+          </button>
+          <button type="button" id="feeResetBtn" class="fee-reset-btn">
+            Reset
+          </button>
+        </div>
+        <div id="feeResult" class="fee-result" aria-live="polite">
+          Run a conversion first, then add your bank or platform fees to simulate the net amount.
+        </div>
+      </section>
+
       <!-- Smart rate alert banner -->
       <div id="alertBanner" aria-live="polite"></div>
 

@@ -634,3 +634,68 @@ footer {
 [data-theme="light"] .trip-title {
   color: #1557c0;
 }
+/* Fee simulator */
+.fee-section {
+  margin: 0.9em auto;
+  background: var(--glass-bg);
+  border-radius: 15px;
+  box-shadow: 0 2px 24px #26335518;
+  padding: 0.9em 1.1em 1.0em 1.1em;
+  max-width: 640px;
+}
+
+.fee-title {
+  font-size: 1.12em;
+  color: var(--text-accent, #46aafc);
+  font-weight: 900;
+  margin-bottom: 0.35em;
+}
+
+.fee-desc {
+  margin: 0 0 0.6em 0;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+.fee-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+  align-items: center;
+  margin-bottom: 0.6em;
+}
+
+.fee-inputs input[type="number"] {
+  min-width: 150px;
+  max-width: 190px;
+}
+
+.fee-btn {
+  padding: 0.6em 1.3em;
+  font-size: 0.96rem;
+}
+
+.fee-reset-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.fee-reset-btn:hover {
+  color: var(--text-accent);
+}
+
+.fee-result {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  text-align: left;
+  min-height: 2.1em;
+}
+
+.fee-strong {
+  color: var(--text-accent);
+  font-weight: 700;
+}
