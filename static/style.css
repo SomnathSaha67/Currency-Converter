@@ -281,12 +281,20 @@ select optgroup {
   color-scheme: dark;
 }
 
-/* On light theme make options use a clean white background */
+/* Ensure the closed select shows the same dark text and a lightened background in dark mode */
+[data-theme="dark"] select {
+  background: rgba(255,255,255,0.06) !important;
+  color: var(--select-option-text) !important;
+  -webkit-text-fill-color: var(--select-option-text) !important;
+}
+
+/* On light theme make select and options use a clean white background and dark text */
+[data-theme="light"] select,
 [data-theme="light"] select option,
 [data-theme="light"] select optgroup {
   background: #ffffff;
-  color: var(--select-option-text);
-  -webkit-text-fill-color: var(--select-option-text);
+  color: var(--select-option-text) !important;
+  -webkit-text-fill-color: var(--select-option-text) !important;
 }
 
 /* Improve focus visibility for select when expanded */
