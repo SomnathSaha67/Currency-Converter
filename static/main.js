@@ -793,117 +793,94 @@ async function fetchMockJson(path, cacheKey, ttl = 60*60*6) {
   }
 }
 
-let chartInstance = null;
 let chartDataStore = null;
 
-async function initChartModule() {
-  // load mock chart data
+// Compute top movers from mock chart data and render small sparklines
+async function initDataModule() {
   chartDataStore = await fetchMockJson('/static/mock/chart_data.json', 'mock_chart_v1');
+  renderMarketMovers();
+}
 
-  const compareSelect = document.getElementById('compareSelect');
-  if (compareSelect && chartDataStore && chartDataStore.pairs) {
-    // populate compare select with currencies from available pairs
-    const pairs = Object.keys(chartDataStore.pairs);
-    const seen = new Set();
-    pairs.forEach(p => {
-      const parts = p.split('_');
-      const base = parts[0];
-      const quote = parts[1];
-      if (!seen.has(quote)) {
-        const o = document.createElement('option'); o.value = quote; o.textContent = quote; compareSelect.appendChild(o); seen.add(quote);
-      }
-    });
-  }
-
-  const ctx = document.getElementById('pairChart');
-  if (!ctx) return;
-
-  chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: { labels: [], datasets: [] },
-    options: {
-      responsive: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { position: 'top' },
-        zoom: { pan: { enabled: true, mode: 'x' }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } }
-      },
-      scales: { x: { type: 'time', time: { unit: 'day' } }, y: { beginAtZero: false } }
-    }
+function computeTopMovers(count = 6) {
+  if (!chartDataStore || !chartDataStore.pairs) return [];
+  const items = [];
+  Object.keys(chartDataStore.pairs).forEach(key => {
+    const pts = chartDataStore.pairs[key];
+    if (!pts || pts.length < 2) return;
+    const last = pts[pts.length - 1].rate;
+    const prev = pts[pts.length - 2].rate;
+    if (typeof prev !== 'number' || prev === 0) return;
+    const change = ((last - prev) / prev) * 100;
+    const [from, to] = key.split('_');
+    items.push({ key, from, to, last, prev, change, series: pts.map(d => d.rate) });
   });
-
-  // range buttons
-  document.getElementById('chartRange').addEventListener('click', (e) => {
-    const btn = e.target.closest('.range-btn');
-    if (!btn) return;
-    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    // store choice
-    localStorage.setItem('chart_range', btn.dataset.range);
-    applyRangeFilter(btn.dataset.range);
-  });
-
-  // compare select
-  const compareEl = document.getElementById('compareSelect');
-  if (compareEl) {
-    compareEl.addEventListener('change', () => {
-      const val = compareEl.value;
-      if (!lastRateInfo || !lastRateInfo.from) return;
-      updateChartWithPair(lastRateInfo.from, lastRateInfo.to, { compareWith: val });
-    });
-  }
-
-  // set default range
-  const storedRange = localStorage.getItem('chart_range') || '30';
-  const btn = document.querySelector(`.range-btn[data-range="${storedRange}"]`);
-  if (btn) btn.click();
+  items.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+  return items.slice(0, count);
 }
 
-function applyRangeFilter(days) {
-  if (!chartInstance || !chartInstance.data || !chartInstance.data.datasets.length) return;
-  // We'll just set x-axis min to now - days
-  const now = new Date(chartInstance.data.labels[chartInstance.data.labels.length-1]);
-  const min = new Date(now.getTime() - (Number(days) || 30) * 24*3600*1000);
-  chartInstance.options.scales.x.min = min;
-  chartInstance.update();
-}
-
-function seriesFromPair(from, to) {
-  // key naming in mock: USD_EUR etc. We prefer USD_TO
-  const key = `${from}_${to}`;
-  if (chartDataStore && chartDataStore.pairs && chartDataStore.pairs[key]) {
-    return chartDataStore.pairs[key].map(d => ({ x: d.date, y: d.rate }));
-  }
-  return null;
-}
-
-function clearChart() {
-  if (!chartInstance) return;
-  chartInstance.data.labels = [];
-  chartInstance.data.datasets = [];
-  chartInstance.update();
-}
-
-function updateChartWithPair(from, to, opts = {}) {
-  if (!chartInstance) return;
-  const series = seriesFromPair(from, to);
-  if (!series) {
-    clearChart();
+function renderMarketMovers() {
+  const grid = document.getElementById('moversGrid');
+  if (!grid) return;
+  const movers = computeTopMovers(8);
+  if (!movers.length) {
+    grid.textContent = 'Market data not available. Refresh to retry.';
     return;
   }
-  // Use the date list from series
-  chartInstance.data.labels = series.map(p => p.x);
-  chartInstance.data.datasets = [
-    { label: `${from}/${to}`, data: series, borderColor: '#67e8f9', backgroundColor: 'rgba(103,232,249,0.08)', tension: 0.2 }
-  ];
-  if (opts.compareWith) {
-    const compSeries = seriesFromPair(from, opts.compareWith);
-    if (compSeries) chartInstance.data.datasets.push({ label: `${from}/${opts.compareWith}`, data: compSeries, borderColor: '#ffdd57', backgroundColor: 'rgba(255,221,87,0.06)', tension: 0.2 });
-  }
-  chartInstance.update();
-  // apply stored range
-  const storedRange = localStorage.getItem('chart_range') || '30';
-  applyRangeFilter(storedRange);
+  grid.innerHTML = '';
+  movers.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'mover-card';
+
+    const top = document.createElement('div'); top.className = 'mover-top';
+    const code = document.createElement('div'); code.className = 'mover-code'; code.textContent = `${m.from}/${m.to}`;
+    const rate = document.createElement('div'); rate.className = 'mover-rate'; rate.textContent = m.last;
+    top.appendChild(code); top.appendChild(rate);
+
+    const canvas = document.createElement('canvas'); canvas.className = 'mover-spark';
+    canvas.width = 220; canvas.height = 44;
+
+    const changeEl = document.createElement('div'); changeEl.className = 'mover-change';
+    changeEl.textContent = `${m.change > 0 ? '+' : ''}${m.change.toFixed(2)}%`;
+    changeEl.classList.add(m.change >= 0 ? 'pos' : 'neg');
+
+    const footer = document.createElement('div'); footer.className = 'mover-action';
+    const btn = document.createElement('button'); btn.className = 'mover-btn'; btn.textContent = 'View';
+    footer.appendChild(btn);
+
+    card.appendChild(top);
+    card.appendChild(canvas);
+    card.appendChild(changeEl);
+    card.appendChild(footer);
+
+    // click handlers
+    card.addEventListener('click', () => {
+      document.getElementById('from').value = m.from;
+      document.getElementById('to').value = m.to;
+      showToast(`Selected ${m.from}→${m.to}`, 'info');
+      if (runConversion) runConversion();
+    });
+    btn.addEventListener('click', (ev) => { ev.stopPropagation(); card.click(); });
+
+    grid.appendChild(card);
+
+    // add updated pulse if recently updated
+    if (typeof recentlyUpdated !== 'undefined' && recentlyUpdated.has(m.key)) {
+      card.classList.add('mover-updated');
+      setTimeout(() => card.classList.remove('mover-updated'), 1200);
+    }
+
+    // draw sparkline
+    try {
+      new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: { labels: m.series.map((_, i) => i), datasets: [{ data: m.series, borderColor: m.change >= 0 ? '#3ddc84' : '#ff6b6b', backgroundColor: 'transparent', tension: 0.3, borderWidth: 2 }] },
+        options: { responsive: false, maintainAspectRatio: false, plugins: { legend: { display: false } }, elements: { point: { radius: 0 } }, scales: { x: { display: false }, y: { display: false } }, interaction: { intersect: false }
+        }
+      });
+    } catch (err) {
+      // ignore sparkline errors
+    }
+  });
 }
 
 // News list
@@ -931,19 +908,78 @@ async function loadNews() {
   });
 }
 
-// Ensure chart & news init on load
+// simulation: real-time mock updates
+let recentlyUpdated = new Set();
+let moverSimInterval = null;
+let moverSimRunning = true;
+
+function initMoverSimulation() {
+  const toggleBtn = document.getElementById('toggleLiveBtn');
+  const refreshBtn = document.getElementById('refreshMoversBtn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      if (moverSimRunning) stopMoverSimulation(); else startMoverSimulation();
+    });
+  }
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => { renderMarketMovers(); showToast('Movers refreshed', 'success'); });
+  }
+  startMoverSimulation();
+}
+
+function startMoverSimulation() {
+  moverSimRunning = true;
+  const btn = document.getElementById('toggleLiveBtn'); if (btn) btn.textContent = 'Pause Live';
+  if (moverSimInterval) clearInterval(moverSimInterval);
+  moverSimInterval = setInterval(simulateMarketTick, 2200 + Math.random()*1800);
+}
+
+function stopMoverSimulation() {
+  moverSimRunning = false;
+  const btn = document.getElementById('toggleLiveBtn'); if (btn) btn.textContent = 'Resume Live';
+  if (moverSimInterval) { clearInterval(moverSimInterval); moverSimInterval = null; }
+}
+
+function simulateMarketTick() {
+  if (!chartDataStore) return;
+  const keys = Object.keys(chartDataStore.pairs);
+  const changes = Math.max(1, Math.round(Math.random()*2));
+  const updated = [];
+  for (let i=0;i<changes;i++) {
+    const k = keys[Math.floor(Math.random()*keys.length)];
+    const arr = chartDataStore.pairs[k];
+    if (!arr || arr.length === 0) continue;
+    const last = arr[arr.length-1].rate;
+    const changePct = (Math.random()*1.6 - 0.8)/100; // -0.8%..+0.8%
+    const newRate = Number((last * (1 + changePct)).toFixed(6));
+    const lastDate = new Date(arr[arr.length-1].date);
+    const newDate = new Date(lastDate.getTime() + 24*3600*1000);
+    arr.push({date: newDate.toISOString().slice(0,10), rate: newRate});
+    if (arr.length > 30) arr.shift();
+    updated.push(k);
+    recentlyUpdated.add(k);
+    setTimeout(() => { recentlyUpdated.delete(k); renderMarketMovers(); }, 1100);
+  }
+  renderMarketMovers();
+  // slightly randomize interval
+  if (moverSimRunning) {
+    clearInterval(moverSimInterval);
+    moverSimInterval = setInterval(simulateMarketTick, 2200 + Math.random()*1800);
+  }
+}
+
+// Ensure data modules init on load
 document.addEventListener('DOMContentLoaded', () => {
-  initChartModule();
+  initDataModule();
   loadNews();
 });
 
-// wire chart update after conversion: updateChartWithPair when a live rate is available
+// wire post-conversion actions: refresh market movers when conversion happens
 const originalRunConversion = runConversion;
 runConversion = async () => {
   await originalRunConversion();
-  if (lastRateInfo && lastRateInfo.from && lastRateInfo.to) {
-    updateChartWithPair(lastRateInfo.from, lastRateInfo.to);
-  }
+  // re-render movers so selection or latest mock results reflect
+  renderMarketMovers();
 };
 
 // Initial populate

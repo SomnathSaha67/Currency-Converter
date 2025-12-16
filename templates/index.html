@@ -114,25 +114,18 @@
         </table>
       </section>
 
-      <!-- Interactive chart: historical trends -->
-      <section class="chart-section" aria-label="Historical chart">
-        <div class="chart-header">
-          <h2 class="chart-title">Historical rate (mock)</h2>
-          <div class="chart-controls">
-            <div class="range-buttons" id="chartRange">
-              <button class="range-btn" data-range="7">1W</button>
-              <button class="range-btn" data-range="30">1M</button>
-              <button class="range-btn" data-range="90">3M</button>
-              <button class="range-btn" data-range="365">1Y</button>
-            </div>
-            <select id="compareSelect" aria-label="Compare currency">
-              <option value="">Compare (optional)</option>
-            </select>
+      <!-- Market Movers: compact cards with mini-sparklines -->
+      <section class="movers-section" aria-label="Market movers">
+        <h2 class="movers-title">Market Movers</h2>
+        <div class="movers-controls">
+          <div class="movers-left"></div>
+          <div class="movers-right">
+            <button id="toggleLiveBtn" class="mover-toggle">Pause Live</button>
+            <button id="refreshMoversBtn" class="primary-btn">Refresh</button>
           </div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="pairChart" width="800" height="360"></canvas>
-        </div>
+        <p class="movers-desc">Top-moving currency pairs (mock data). Click a card to prefill the converter.</p>
+        <div id="moversGrid" class="movers-grid">Loading movers…</div>
       </section>
 
       <!-- Left column: Trip Budget Helper -->
@@ -213,9 +206,8 @@
       <div class="footer-right">Tip: press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to convert • <kbd>S</kbd> to swap</div>
     </footer>
   </div>
-  <!-- Chart.js for interactive charts + plugin for zoom/pan -->
+  <!-- Chart.js for sparklines -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
   <script src="/static/main.js"></script>
   <script>
     function setTheme(mode) {
