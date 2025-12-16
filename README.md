@@ -2,7 +2,7 @@
 
 # Currency Converter
 
-A minimal, modern web currency converter built with Flask and vanilla JavaScript. Convert currencies instantly, with real-time and historical rates, all from a single, visible screen. High-contrast, no-scroll interface—designed for clarity and ease of use.
+A minimal, modern web currency converter built with Flask and vanilla JavaScript. Convert currencies instantly, with real-time and historical rates, now presented as a full-screen, responsive app with polished UI and micro-interactions for a better user experience.
 
 ***
 

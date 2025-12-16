@@ -5,46 +5,34 @@
   <title>Currency Converter</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,700,900|Montserrat:700&display=swap">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#12223b">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="container">
-    <header class="main-header">
-      <h1 class="main-title">Currency Converter</h1>
-      <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light" aria-label="Toggle theme">
-        <span id="themeToggleIcon">
-          <!-- Sun/Moon SVG icons -->
-          <svg width="29" height="29" viewBox="0 0 29 29" fill="none"
-            xmlns="http://www.w3.org/2000/svg" id="sunIcon">
-            <circle cx="14.5" cy="14.5" r="6.5" stroke="#fff"
-              stroke-width="2" fill="#ffe965"/>
-            <g stroke="#ffe965" stroke-width="2">
-              <line x1="14.5" y1="3" x2="14.5" y2="7"/>
-              <line x1="14.5" y1="22" x2="14.5" y2="26"/>
-              <line x1="3" y1="14.5" x2="7" y2="14.5"/>
-              <line x1="22" y1="14.5" x2="26" y2="14.5"/>
-              <line x1="6" y1="6" x2="9" y2="9"/>
-              <line x1="6" y1="23" x2="9" y2="20"/>
-              <line x1="20" y1="9" x2="23" y2="6"/>
-              <line x1="20" y1="20" x2="23" y2="23"/>
-            </g>
-          </svg>
-          <svg width="29" height="29" viewBox="0 0 29 29" fill="none"
-            xmlns="http://www.w3.org/2000/svg" id="moonIcon" style="display: none;">
-            <path d="M21.6 18.6A8 8 0 1 1 14.1 6.2a7 7 0 1 0 7.5 12.4z"
-              fill="#acd8fa" stroke="#fff" stroke-width="2"/>
-          </svg>
-        </span>
-      </button>
-      <div class="sub-header">
-        <span class="tagline">A cheaper, <span class="tag-faster">faster</span> way to send money abroad</span><br>
-        <span class="desc">Convert any currency—minimal, instant, always updated.</span>
+  <div class="app-root">
+    <header class="site-header" role="banner">
+      <div class="brand">
+        <h1 class="brand-title">Currency Converter</h1>
+        <p class="brand-sub">Minimal • Instant • Fullscreen</p>
+      </div>
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light" aria-label="Toggle theme">
+          <span id="themeToggleIcon">
+            <svg width="26" height="26" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" id="sunIcon">
+              <circle cx="14.5" cy="14.5" r="6.5" stroke="#fff" stroke-width="2" fill="#ffe965"/>
+            </svg>
+            <svg width="26" height="26" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" id="moonIcon" style="display: none;">
+              <path d="M21.6 18.6A8 8 0 1 1 14.1 6.2a7 7 0 1 0 7.5 12.4z" fill="#acd8fa" stroke="#fff" stroke-width="2"/>
+            </svg>
+          </span>
+        </button>
       </div>
     </header>
 
-    <main>
+    <main class="app-grid" role="main">
       <!-- Converter form/results (top row, full width) -->
-      <form id="convertForm" autocomplete="off" onsubmit="return false;">
+      <form id="convertForm" class="converter" autocomplete="off" onsubmit="return false;">
         <div class="input-row glass-input">
           <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" />
           <select id="from" aria-label="From currency"></select>
@@ -58,7 +46,7 @@
         <div id="errorArea" aria-live="assertive"></div>
       </form>
 
-      <section id="resultBox">
+      <section id="resultBox" role="status" aria-atomic="true">
         <div class="result" id="resultArea" aria-live="polite"></div>
         <div class="meta" id="metaArea"></div>
       </section>
@@ -99,7 +87,7 @@
       </section>
 
       <!-- Smart rate alert banner -->
-      <div id="alertBanner" aria-live="polite"></div>
+      <div id="alertBanner" aria-live="polite" role="status" aria-atomic="true"></div>
 
       <section id="providerBox">
         <div id="providerArea"></div>
@@ -155,8 +143,9 @@
         <div id="tripResult" class="trip-result" aria-live="polite"></div>
       </section>
 
-      <!-- Right column: Favorites -->
-      <section class="favorites-section" aria-label="Favorite currency pairs">
+      <!-- Side column (right on desktop, bottom on mobile) -->
+      <aside class="side-column" aria-label="Controls and extras">
+        <section class="favorites-section" aria-label="Favorite currency pairs">
         <h2 class="favorites-title">Favorite Pairs</h2>
         <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);">
           Pin your most-used pairs for one-click access.
@@ -197,11 +186,13 @@
       <section id="tvBlock" class="tv-section">
         <h2 class="tv-title">Global Market Indices</h2>
         <div id="tradingview-widget"></div>
-      </section>
+        </section>
+      </aside>
     </main>
 
-    <footer>
-      Built by Somnath Saha | Minimal design, 2025
+    <footer class="site-footer">
+      <div>Built by Somnath Saha • Minimal design, 2025</div>
+      <div class="footer-right">Tip: press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to convert • <kbd>S</kbd> to swap</div>
     </footer>
   </div>
   <script src="/static/main.js"></script>
@@ -226,7 +217,11 @@
       const saved = localStorage.getItem('theme') || 'dark';
       setTheme(saved);
       const toggleBtn = document.getElementById('themeToggleBtn');
-      if (toggleBtn) toggleBtn.addEventListener('click', toggleTheme);
+      if (toggleBtn) toggleBtn.addEventListener('click', () => {
+        // small rotate animation
+        toggleBtn.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:420,fill:'forwards'});
+        toggleTheme();
+      });
     });
   </script>
 </body>

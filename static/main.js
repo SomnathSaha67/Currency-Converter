@@ -84,6 +84,41 @@ function debounce(fn, delay) {
 const FAV_KEY = 'converter_favorites_v1';
 const ALERT_KEY = 'converter_alerts_v1';
 
+// Tiny toast utility for micro-feedback
+function showToast(message, type = 'info', timeout = 2400) {
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.setAttribute('aria-live','polite');
+    container.style.position = 'fixed';
+    container.style.right = '18px';
+    container.style.top = '18px';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+  }
+  const el = document.createElement('div');
+  el.className = 'mini-toast mini-toast-' + type;
+  el.textContent = message;
+  el.style.margin = '6px 0';
+  el.style.padding = '8px 12px';
+  el.style.borderRadius = '10px';
+  el.style.boxShadow = '0 6px 18px rgba(0,0,0,0.22)';
+  el.style.background = type === 'success' ? 'linear-gradient(90deg,#6bfcbc,#47a1ff)' : 'rgba(0,0,0,0.6)';
+  el.style.color = '#fff';
+  el.style.fontWeight = '700';
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(-6px)';
+  container.appendChild(el);
+  requestAnimationFrame(() => { el.style.transition = 'all 320ms ease'; el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(-8px)';
+    setTimeout(() => el.remove(), 360);
+  }, timeout);
+}
+
+
 function loadFavorites() {
   try {
     const raw = localStorage.getItem(FAV_KEY);
@@ -545,14 +580,46 @@ async function populate() {
       const rate = data.info && data.info.rate ? data.info.rate : null;
 
       if (rate !== null) {
+        // insert spans for animated numbers
         resultArea.innerHTML = `
           <div class="result-main">
-            ${amt} ${fr} = ${result.toFixed(6)} ${toCode}
+            <span class="amt-from">${amt} ${fr}</span> = <span class="amt-to" data-target="${Number(result)}">${Number(result).toFixed(6)}</span> ${toCode}
           </div>
           <div class="result-rate">
-            Rate: 1 ${fr} = ${rate.toFixed(6)} ${toCode}
+            Rate: 1 ${fr} = <span class="rate" data-target="${Number(rate)}">${Number(rate).toFixed(6)}</span> ${toCode}
           </div>
         `;
+
+        // small entrance micro-interaction
+        const resultBox = document.getElementById('resultBox');
+        if (resultBox) {
+          resultBox.classList.add('result-animate-in');
+          setTimeout(() => resultBox.classList.remove('result-animate-in'), 600);
+        }
+
+        // Animated numbers (respect reduced motion)
+        function animateNumber(node, from, to, decimals = 6, duration = 650) {
+          const preferReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (preferReduced) {
+            node.textContent = Number(to).toFixed(decimals);
+            return;
+          }
+          const start = performance.now();
+          const s = Number(from);
+          const e = Number(to);
+          function step(now) {
+            const p = Math.min(1, (now - start) / duration);
+            const cur = s + (e - s) * (1 - Math.pow(1 - p, 2));
+            node.textContent = Number(cur).toFixed(decimals);
+            if (p < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        }
+
+        const amtToEl = resultArea.querySelector('.amt-to');
+        const rateEl = resultArea.querySelector('.rate');
+        if (amtToEl) animateNumber(amtToEl, 0, Number(amtToEl.dataset.target), 6, 700);
+        if (rateEl) animateNumber(rateEl, 0, Number(rateEl.dataset.target), 6, 700);
 
         const now = new Date();
         lastRateInfo = {
@@ -574,6 +641,12 @@ async function populate() {
 
         updateAlertBanner(lastRateInfo.rate);
         updateScenarioTable(amt, lastRateInfo.rate, fr, toCode);
+
+        // focus for screen readers and keyboard users
+        if (resultArea) {
+          resultArea.setAttribute('tabindex', '-1');
+          resultArea.focus({ preventScroll: true });
+        }
       } else {
         resultArea.innerHTML = `
           <div class="result-main">
@@ -617,6 +690,9 @@ async function populate() {
       if (favs.length > 5) favs.pop();
       saveFavorites(favs);
       renderFavorites();
+      showToast('Added to favorites', 'success');
+    } else {
+      showToast('Already in favorites', 'info');
     }
   });
 
@@ -632,6 +708,7 @@ async function populate() {
     alerts[pairKey(from, to)] = { rate: rateVal, direction: dir };
     saveAlerts(alerts);
     renderAlertSummary();
+    showToast('Alert saved', 'success');
   });
 
   // Auto-convert: debounce
