@@ -65,7 +65,7 @@ html, body {
 /* main grid: two columns on wide screens, single column on narrow */
 .app-grid {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr minmax(260px, 360px);
   gap: 22px;
   align-items: start;
   width: 100%;
@@ -407,12 +407,13 @@ input[type="number"]::-webkit-outer-spin-button {
 .alert-section,
 .tip-section,
 .tv-section {
-  margin: 0.9em auto;
+  margin: 0.9em 0;
   background: var(--glass-bg);
   border-radius: 15px;
   box-shadow: 0 2px 24px #26335518;
   padding: 0.9em 1.1em 1.0em 1.1em;
-  max-width: 640px;
+  width: 100%;
+  max-width: none;
 }
 
 .scenario-title,
@@ -526,7 +527,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* News */
 .news-section { background: var(--glass-bg); padding: 0.9em 1.1em; border-radius: 14px; box-shadow: 0 2px 20px rgba(7,18,38,0.12); }
-.news-list { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+.news-list { display:flex; flex-direction:column; gap:10px; margin-top:8px; max-height:360px; overflow:auto; }
 .news-card { padding:12px; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); cursor:pointer; }
 .news-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(6,14,30,0.16); }
 .news-title { font-weight:800; margin:0 0 4px 0; font-size:0.98rem; }

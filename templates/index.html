@@ -31,6 +31,7 @@
     </header>
 
     <main class="app-grid" role="main">
+      <section class="main-column" aria-label="Primary">
       <!-- Converter form/results (top row, full width) -->
       <form id="convertForm" class="converter" autocomplete="off" onsubmit="return false;">
         <div class="input-row glass-input">
@@ -163,6 +164,7 @@
         </div>
         <div id="tripResult" class="trip-result" aria-live="polite"></div>
       </section>
+      </section>
 
       <!-- Side column (right on desktop, bottom on mobile) -->
       <aside class="side-column" aria-label="Controls and extras">
@@ -203,6 +205,12 @@
           <div id="newsList" class="news-list">Loading news…</div>
           <button id="refreshNewsBtn" class="primary-btn" style="margin-top:0.6em;">Refresh</button>
         </section>
+      </aside>
+    </main>
+
+    <footer class="site-footer">
+      <div>Built by Somnath Saha • Minimal design, 2025</div>
+      <div class="footer-right">Tip: press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to convert • <kbd>S</kbd> to swap</div>
     </footer>
   </div>
   <!-- Chart.js for interactive charts + plugin for zoom/pan -->
