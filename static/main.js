@@ -773,6 +773,179 @@ async function populate() {
   });
 }
 
+// Mocked data + caching helper
+async function fetchMockJson(path, cacheKey, ttl = 60*60*6) {
+  try {
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Date.now() - parsed._ts < ttl * 1000) return parsed.data;
+    }
+    const res = await fetch(path, {cache: 'no-store'});
+    const json = await res.json();
+    localStorage.setItem(cacheKey, JSON.stringify({_ts: Date.now(), data: json}));
+    return json;
+  } catch (err) {
+    console.warn('Mock fetch failed', err);
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) return JSON.parse(raw).data;
+    return null;
+  }
+}
+
+let chartInstance = null;
+let chartDataStore = null;
+
+async function initChartModule() {
+  // load mock chart data
+  chartDataStore = await fetchMockJson('/static/mock/chart_data.json', 'mock_chart_v1');
+
+  const compareSelect = document.getElementById('compareSelect');
+  if (compareSelect && chartDataStore && chartDataStore.pairs) {
+    // populate compare select with currencies from available pairs
+    const pairs = Object.keys(chartDataStore.pairs);
+    const seen = new Set();
+    pairs.forEach(p => {
+      const parts = p.split('_');
+      const base = parts[0];
+      const quote = parts[1];
+      if (!seen.has(quote)) {
+        const o = document.createElement('option'); o.value = quote; o.textContent = quote; compareSelect.appendChild(o); seen.add(quote);
+      }
+    });
+  }
+
+  const ctx = document.getElementById('pairChart');
+  if (!ctx) return;
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: { labels: [], datasets: [] },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top' },
+        zoom: { pan: { enabled: true, mode: 'x' }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' } }
+      },
+      scales: { x: { type: 'time', time: { unit: 'day' } }, y: { beginAtZero: false } }
+    }
+  });
+
+  // range buttons
+  document.getElementById('chartRange').addEventListener('click', (e) => {
+    const btn = e.target.closest('.range-btn');
+    if (!btn) return;
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // store choice
+    localStorage.setItem('chart_range', btn.dataset.range);
+    applyRangeFilter(btn.dataset.range);
+  });
+
+  // compare select
+  const compareEl = document.getElementById('compareSelect');
+  if (compareEl) {
+    compareEl.addEventListener('change', () => {
+      const val = compareEl.value;
+      if (!lastRateInfo || !lastRateInfo.from) return;
+      updateChartWithPair(lastRateInfo.from, lastRateInfo.to, { compareWith: val });
+    });
+  }
+
+  // set default range
+  const storedRange = localStorage.getItem('chart_range') || '30';
+  const btn = document.querySelector(`.range-btn[data-range="${storedRange}"]`);
+  if (btn) btn.click();
+}
+
+function applyRangeFilter(days) {
+  if (!chartInstance || !chartInstance.data || !chartInstance.data.datasets.length) return;
+  // We'll just set x-axis min to now - days
+  const now = new Date(chartInstance.data.labels[chartInstance.data.labels.length-1]);
+  const min = new Date(now.getTime() - (Number(days) || 30) * 24*3600*1000);
+  chartInstance.options.scales.x.min = min;
+  chartInstance.update();
+}
+
+function seriesFromPair(from, to) {
+  // key naming in mock: USD_EUR etc. We prefer USD_TO
+  const key = `${from}_${to}`;
+  if (chartDataStore && chartDataStore.pairs && chartDataStore.pairs[key]) {
+    return chartDataStore.pairs[key].map(d => ({ x: d.date, y: d.rate }));
+  }
+  return null;
+}
+
+function clearChart() {
+  if (!chartInstance) return;
+  chartInstance.data.labels = [];
+  chartInstance.data.datasets = [];
+  chartInstance.update();
+}
+
+function updateChartWithPair(from, to, opts = {}) {
+  if (!chartInstance) return;
+  const series = seriesFromPair(from, to);
+  if (!series) {
+    clearChart();
+    return;
+  }
+  // Use the date list from series
+  chartInstance.data.labels = series.map(p => p.x);
+  chartInstance.data.datasets = [
+    { label: `${from}/${to}`, data: series, borderColor: '#67e8f9', backgroundColor: 'rgba(103,232,249,0.08)', tension: 0.2 }
+  ];
+  if (opts.compareWith) {
+    const compSeries = seriesFromPair(from, opts.compareWith);
+    if (compSeries) chartInstance.data.datasets.push({ label: `${from}/${opts.compareWith}`, data: compSeries, borderColor: '#ffdd57', backgroundColor: 'rgba(255,221,87,0.06)', tension: 0.2 });
+  }
+  chartInstance.update();
+  // apply stored range
+  const storedRange = localStorage.getItem('chart_range') || '30';
+  applyRangeFilter(storedRange);
+}
+
+// News list
+async function loadNews() {
+  const news = await fetchMockJson('/static/mock/news.json', 'mock_news_v1');
+  const list = document.getElementById('newsList');
+  const refreshBtn = document.getElementById('refreshNewsBtn');
+  if (!list) return;
+  if (!news || !news.items || !news.items.length) {
+    list.textContent = 'No news available.';
+    return;
+  }
+  list.innerHTML = '';
+  news.items.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'news-card';
+    el.innerHTML = `<div class="news-title">${item.title}</div><div class="news-meta">${new Date(item.published_at).toLocaleString()} • ${item.source}</div><div class="news-summary">${item.summary}</div><div class="news-tags">${(item.tags || []).map(t=>`<span class="news-tag">${t}</span>`).join('')}</div>`;
+    el.addEventListener('click', () => { window.open(item.url, '_blank'); });
+    list.appendChild(el);
+  });
+  if (refreshBtn) refreshBtn.addEventListener('click', async () => {
+    localStorage.removeItem('mock_news_v1');
+    showToast('News refreshed', 'success');
+    await loadNews();
+  });
+}
+
+// Ensure chart & news init on load
+document.addEventListener('DOMContentLoaded', () => {
+  initChartModule();
+  loadNews();
+});
+
+// wire chart update after conversion: updateChartWithPair when a live rate is available
+const originalRunConversion = runConversion;
+runConversion = async () => {
+  await originalRunConversion();
+  if (lastRateInfo && lastRateInfo.from && lastRateInfo.to) {
+    updateChartWithPair(lastRateInfo.from, lastRateInfo.to);
+  }
+};
+
 // Initial populate
 document.addEventListener('DOMContentLoaded', populate);
 

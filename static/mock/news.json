@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "n1",
+      "title": "USD strengthens against EUR after positive jobs report",
+      "summary": "The dollar rallied after better-than-expected employment numbers in the US, prompting central bank watchers to reassess timelines.",
+      "url": "https://example.com/news/usd-eur-jobs",
+      "tags": ["USD", "EUR", "macro"],
+      "published_at": "2025-12-15T09:20:00Z",
+      "source": "GlobalMarkets"
+    },
+    {
+      "id": "n2",
+      "title": "Emerging market currencies show resilience amid rate cuts",
+      "summary": "Some emerging market currencies have started to recover as local rate cuts and stabilizing commodity prices improve sentiment.",
+      "url": "https://example.com/news/emerging-resilience",
+      "tags": ["EM", "INR", "BRL"],
+      "published_at": "2025-12-14T12:05:00Z",
+      "source": "FXDigest"
+    },
+    {
+      "id": "n3",
+      "title": "What the latest CPI means for currency traders",
+      "summary": "Analysts break down the consumer price index reading and what to expect for central bank decisions over the coming quarters.",
+      "url": "https://example.com/news/cpi-analysis",
+      "tags": ["analysis", "inflation"],
+      "published_at": "2025-12-13T07:50:00Z",
+      "source": "MoneyLens"
+    }
+  ]
+}
