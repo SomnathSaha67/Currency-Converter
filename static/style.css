@@ -256,6 +256,29 @@ input, select {
   max-width: 230px;
 }
 
+/* Ensure select dropdown options are readable in dark mode */
+select option,
+select optgroup {
+  background: var(--input-bg);
+  color: var(--text-main);
+  padding: 0.45em 0.6em;
+  -webkit-text-fill-color: var(--text-main);
+}
+
+/* On light theme make options use a clean white background */
+[data-theme="light"] select option,
+[data-theme="light"] select optgroup {
+  background: #ffffff;
+  color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main);
+}
+
+/* Improve focus visibility for select when expanded */
+select:focus {
+  z-index: 9999;
+  position: relative;
+}
+
 input:focus, select:focus {
   border: 1.7px solid var(--text-accent);
   box-shadow: 0 2px 12px #2474fa7a;
