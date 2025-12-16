@@ -257,12 +257,25 @@ input, select {
 }
 
 /* Ensure select dropdown options are readable in dark mode */
+select,
 select option,
 select optgroup {
-  background: var(--input-bg);
-  color: var(--text-main);
+  background: var(--input-bg) !important;
+  color: var(--text-main) !important;
   padding: 0.45em 0.6em;
-  -webkit-text-fill-color: var(--text-main);
+  -webkit-text-fill-color: var(--text-main) !important;
+  color-scheme: light dark;
+}
+
+/* Prefer accent text for option items in dark theme so they don't blend into white */
+[data-theme="dark"] select,
+[data-theme="dark"] select option,
+[data-theme="dark"] select optgroup {
+  background: var(--input-bg) !important;
+  /* use a strong accent color for better contrast inside white native dropdowns */
+  color: var(--text-accent) !important;
+  -webkit-text-fill-color: var(--text-accent) !important;
+  color-scheme: dark;
 }
 
 /* On light theme make options use a clean white background */
