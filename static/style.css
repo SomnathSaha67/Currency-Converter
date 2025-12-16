@@ -256,25 +256,28 @@ input, select {
   max-width: 230px;
 }
 
-/* Ensure select dropdown options are readable in dark mode */
+/* Ensure select dropdown option text matches light-mode color */
+:root {
+  --select-option-text: #0f1724; /* dark option text used in light-mode */
+}
+
 select,
 select option,
 select optgroup {
   background: var(--input-bg) !important;
-  color: var(--text-main) !important;
+  color: var(--select-option-text) !important;
   padding: 0.45em 0.6em;
-  -webkit-text-fill-color: var(--text-main) !important;
+  -webkit-text-fill-color: var(--select-option-text) !important;
   color-scheme: light dark;
 }
 
-/* Prefer accent text for option items in dark theme so they don't blend into white */
+/* For dark theme: use a slightly lighter option background so dark text is readable */
 [data-theme="dark"] select,
 [data-theme="dark"] select option,
 [data-theme="dark"] select optgroup {
-  background: var(--input-bg) !important;
-  /* use a strong accent color for better contrast inside white native dropdowns */
-  color: var(--text-accent) !important;
-  -webkit-text-fill-color: var(--text-accent) !important;
+  background: rgba(255,255,255,0.06) !important;
+  color: var(--select-option-text) !important;
+  -webkit-text-fill-color: var(--select-option-text) !important;
   color-scheme: dark;
 }
 
@@ -282,8 +285,8 @@ select optgroup {
 [data-theme="light"] select option,
 [data-theme="light"] select optgroup {
   background: #ffffff;
-  color: var(--text-main);
-  -webkit-text-fill-color: var(--text-main);
+  color: var(--select-option-text);
+  -webkit-text-fill-color: var(--select-option-text);
 }
 
 /* Improve focus visibility for select when expanded */
