@@ -13,10 +13,20 @@
   <div class="app-root">
     <header class="site-header" role="banner">
       <div class="brand">
-        <h1 class="brand-title">Currency Converter</h1>
-        <p class="brand-sub">Minimal • Instant • Fullscreen</p>
+        <h1 class="brand-title" data-i18n="title">Currency Converter</h1>
+        <p class="brand-sub" data-i18n="brandSub">Minimal • Instant • Fullscreen</p>
       </div>
       <div class="header-actions">
+        <label for="langSelect" class="visually-hidden" data-i18n="selectLanguageLabel">Language</label>
+        <select id="langSelect" aria-label="Language selector" class="lang-select">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="hi">हिन्दी</option>
+          <option value="zh">中文</option>
+          <option value="ar">العربية</option>
+        </select>
+
         <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light" aria-label="Toggle theme">
           <span id="themeToggleIcon">
             <svg width="26" height="26" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg" id="sunIcon">
@@ -35,14 +45,14 @@
       <!-- Converter form/results (top row, full width) -->
       <form id="convertForm" class="converter" autocomplete="off" onsubmit="return false;">
         <div class="input-row glass-input">
-          <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" />
+          <input id="amount" type="number" value="1" min="1" step="any" required aria-label="Amount" placeholder="Amount" data-i18n-placeholder="amountPlaceholder" />
           <select id="from" aria-label="From currency"></select>
           <button type="button" class="swap-btn" id="swapBtn" title="Swap">⇆</button>
           <select id="to" aria-label="To currency"></select>
         </div>
         <div class="input-row">
-          <input id="date" type="date" aria-label="Conversion date" placeholder="Date (optional)" />
-          <button id="convertBtn" class="primary-btn">Convert</button>
+          <input id="date" type="date" aria-label="Conversion date" placeholder="Date (optional)" data-i18n-placeholder="datePlaceholder" />
+          <button id="convertBtn" class="primary-btn" data-i18n="convert">Convert</button>
         </div>
         <div id="errorArea" aria-live="assertive"></div>
       </form>
@@ -54,8 +64,8 @@
 
       <!-- Fee simulation (only meaningful when a single pair is selected) -->
       <section class="fee-section" aria-label="Fee simulator">
-        <h2 class="fee-title">Fee Simulator</h2>
-        <p class="fee-desc">
+        <h2 class="fee-title" data-i18n="feeSimulatorTitle">Fee Simulator</h2>
+        <p class="fee-desc" data-i18n="feeDesc">
           Add a flat fee and/or a percentage fee to see how much you actually receive after fees.
         </p>
         <div class="fee-inputs">
@@ -66,6 +76,7 @@
             step="any"
             placeholder="Flat fee in source currency"
             aria-label="Flat fee in source currency"
+            data-i18n-placeholder="feeFlatPlaceholder"
           />
           <input
             id="feePercent"
@@ -74,15 +85,16 @@
             step="any"
             placeholder="Fee % on source amount"
             aria-label="Percentage fee on source amount"
+            data-i18n-placeholder="feePercentPlaceholder"
           />
-          <button type="button" id="feeCalcBtn" class="primary-btn fee-btn">
+          <button type="button" id="feeCalcBtn" class="primary-btn fee-btn" data-i18n="applyFees">
             Apply fees
           </button>
-          <button type="button" id="feeResetBtn" class="fee-reset-btn">
+          <button type="button" id="feeResetBtn" class="fee-reset-btn" data-i18n="reset">
             Reset
           </button>
         </div>
-        <div id="feeResult" class="fee-result" aria-live="polite">
+        <div id="feeResult" class="fee-result" aria-live="polite" data-i18n="feeResult">
           Run a conversion first, then add your bank or platform fees to simulate the net amount.
         </div>
       </section>
@@ -96,17 +108,17 @@
 
       <!-- Left column: Scenario Planner -->
       <section class="scenario-section" aria-label="Scenario planner">
-        <h2 class="scenario-title">What if the rate changes?</h2>
-        <p id="scenarioHeader">
+        <h2 class="scenario-title" data-i18n="scenarioTitle">What if the rate changes?</h2>
+        <p id="scenarioHeader" data-i18n="scenarioHeader">
           Scenario planner will appear when a valid live rate is available.
         </p>
         <table class="scenario-table">
           <thead>
             <tr>
-              <th>Rate move</th>
-              <th>New rate</th>
-              <th>Converted amount</th>
-              <th>Difference vs now</th>
+              <th data-i18n="scenarioRateMove">Rate move</th>
+              <th data-i18n="scenarioNewRate">New rate</th>
+              <th data-i18n="scenarioConverted">Converted amount</th>
+              <th data-i18n="scenarioDiff">Difference vs now</th>
             </tr>
           </thead>
           <tbody id="scenarioBody">
@@ -116,23 +128,23 @@
 
       <!-- Market Movers: compact cards with mini-sparklines -->
       <section class="movers-section" aria-label="Market movers">
-        <h2 class="movers-title">Market Movers</h2>
+        <h2 class="movers-title" data-i18n="marketMoversTitle">Market Movers</h2>
         <div class="movers-controls">
           <div class="movers-left"></div>
           <div class="movers-right">
-            <button id="toggleLiveBtn" class="mover-toggle">Pause Live</button>
-            <button id="refreshMoversBtn" class="primary-btn">Refresh</button>
-            <button id="fetchLiveBtn" class="primary-btn">Fetch Live</button>
+            <button id="toggleLiveBtn" class="mover-toggle" data-i18n="pauseLive">Pause Live</button>
+            <button id="refreshMoversBtn" class="primary-btn" data-i18n="refresh">Refresh</button>
+            <button id="fetchLiveBtn" class="primary-btn" data-i18n="fetchLive">Fetch Live</button>
           </div>
         </div>
-        <p class="movers-desc">Top-moving currency pairs (mock data). Click a card to prefill the converter.</p>
-        <div id="moversGrid" class="movers-grid">Loading movers…</div>
+        <p class="movers-desc" data-i18n="moversDesc">Top-moving currency pairs (mock data). Click a card to prefill the converter.</p>
+        <div id="moversGrid" class="movers-grid" data-i18n="loadingMovers">Loading movers…</div>
       </section>
 
       <!-- Left column: Trip Budget Helper -->
       <section class="trip-section" aria-label="Trip budget helper">
-        <h2 class="trip-title">Trip Budget Helper</h2>
-        <p class="trip-desc">
+        <h2 class="trip-title" data-i18n="tripTitle">Trip Budget Helper</h2>
+        <p class="trip-desc" data-i18n="tripDesc">
           Plan a trip by converting your total budget into the destination currency and seeing a suggested daily budget.
         </p>
         <div class="trip-inputs">
@@ -143,6 +155,7 @@
             step="any"
             placeholder="Trip budget in home currency"
             aria-label="Trip budget in home currency"
+            data-i18n-placeholder="tripBudgetPlaceholder"
           />
           <input
             id="tripDays"
@@ -151,23 +164,24 @@
             step="1"
             placeholder="Number of days"
             aria-label="Number of trip days"
+            data-i18n-placeholder="tripDaysPlaceholder"
           />
-          <button type="button" id="tripCalcBtn" class="primary-btn trip-btn">
+          <button type="button" id="tripCalcBtn" class="primary-btn trip-btn" data-i18n="tripCalc">
             Calculate trip budget
           </button>
         </div>
-        <div id="tripResult" class="trip-result" aria-live="polite"></div>
+        <div id="tripResult" class="trip-result" aria-live="polite" data-i18n="tripResult"></div>
       </section>
       </section>
 
       <!-- Side column (right on desktop, bottom on mobile) -->
       <aside class="side-column" aria-label="Controls and extras">
         <section class="favorites-section" aria-label="Favorite currency pairs">
-        <h2 class="favorites-title">Favorite Pairs</h2>
-        <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);">
+        <h2 class="favorites-title" data-i18n="favoritesTitle">Favorite Pairs</h2>
+        <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);" data-i18n="favoritesDesc">
           Pin your most-used pairs for one-click access.
         </p>
-        <button type="button" id="addFavoriteBtn" class="primary-btn" style="padding:0.5em 1.1em;font-size:0.95rem;margin-bottom:0.6em;">
+        <button type="button" id="addFavoriteBtn" class="primary-btn" data-i18n="addFavorite" style="padding:0.5em 1.1em;font-size:0.95rem;margin-bottom:0.6em;">
           Add current pair to favorites
         </button>
         <div id="favoritesList" class="favorites-row"></div>
@@ -175,8 +189,8 @@
 
       <!-- Right column: Rate alert -->
       <section class="alert-section" aria-label="Rate alerts">
-        <h2 class="alert-title">Smart Rate Alert</h2>
-        <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);">
+        <h2 class="alert-title" data-i18n="alertTitle">Smart Rate Alert</h2>
+        <p style="margin:0 0 0.4em 0;font-size:0.96rem;color:var(--text-secondary);" data-i18n="alertDesc">
           Set a target rate for the selected pair. When the live rate crosses your target, a banner will highlight it.
         </p>
         <div class="alert-controls">
@@ -195,9 +209,9 @@
 
         <!-- News / Insights widget (mock) -->
         <section class="news-section" aria-label="News and insights">
-          <h2 class="news-title">News & Insights</h2>
-          <div id="newsList" class="news-list">Loading news…</div>
-          <button id="refreshNewsBtn" class="primary-btn" style="margin-top:0.6em;">Refresh</button>
+          <h2 class="news-title" data-i18n="newsTitle">News & Insights</h2>
+          <div id="newsList" class="news-list" data-i18n="loadingNews">Loading news…</div>
+          <button id="refreshNewsBtn" class="primary-btn" style="margin-top:0.6em;" data-i18n="refresh">Refresh</button>
         </section>
       </aside>
     </main>

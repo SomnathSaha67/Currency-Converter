@@ -1,21 +1,24 @@
 :root {
-  --bg: linear-gradient(135deg, #223050 0%, #1d2943 100%);
-  --input-bg: rgba(20, 64, 122, 0.68);
-  --glass-bg: rgba(34, 48, 80, 0.78);
-  --text-main: #f5f8fd;
-  --text-secondary: #b7c1ed;
-  --text-accent: #6bfcbc;
-  --text-highlight: #4773fa;
-  --result-bg: rgba(19, 41, 83, 0.55);
-  --result-text: #6bfcbc;
-  --result-rate-text: #68ffae;
-  --provider-bg: rgba(36, 71, 122, 0.81);
-  --provider-text: #6bfcbc;
-  --primary-btn-bg: linear-gradient(90deg, #6bfcbc 0%, #4773fa 100%);
-  --alert-good-bg: #0f5132;
+  /* modern, fresh palette inspired by common modern websites */
+  --bg: linear-gradient(180deg,#0f1724 0%, #071029 60%);
+  --card-bg: rgba(255,255,255,0.02);
+  --input-bg: rgba(255,255,255,0.04);
+  --glass-bg: rgba(255,255,255,0.03);
+  --text-main: #e6eef6;
+  --text-secondary: #9fb4d8;
+  --text-accent: #60e0ff;
+  --text-highlight: #7c8fff;
+  --btn-accent-start: #60e0ff;
+  --btn-accent-end: #7c8fff;
+  --result-bg: rgba(12,18,33,0.6);
+  --result-text: #a7fff4;
+  --provider-bg: rgba(255,255,255,0.03);
+  --provider-text: #bfefff;
+  --primary-btn-bg: linear-gradient(90deg,var(--btn-accent-start) 0%,var(--btn-accent-end) 100%);
+  --alert-good-bg: #063b2a;
   --alert-good-border: #198754;
-  --skeleton-base: rgba(255, 255, 255, 0.1);
-  --skeleton-highlight: rgba(255, 255, 255, 0.28);
+  --skeleton-base: rgba(255, 255, 255, 0.04);
+  --skeleton-highlight: rgba(255, 255, 255, 0.12);
 }
 
 [data-theme="light"] {
