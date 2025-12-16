@@ -5,7 +5,8 @@
 A minimal, modern web currency converter built with Flask and vanilla JavaScript. Convert currencies instantly, with real-time and historical rates, now presented as a full-screen, responsive app with polished UI and micro-interactions for a better user experience.
 
 New feature highlights:
-- Interactive historical charts (zoom, pan) with mock historical data and range controls. 📈
+- Interactive historical charts (mock) replaced by a high-impact "Market Movers" module with mini-sparklines. 📈
+- Live rate fetch: a "Fetch Live" control was added to update top movers from the conversion API (`/api/convert`) so movers can show up-to-date rates (useful for demoing USD/INR jumping to real values). 🔁
 - News & Insights panel (mocked feed) with summarized headlines and tags—cached for offline-friendly demos. 📰
 - Mocked datasets and local caching to ensure a flawless, fast demo experience.
 

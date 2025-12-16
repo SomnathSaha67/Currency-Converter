@@ -934,6 +934,48 @@ function startMoverSimulation() {
   moverSimInterval = setInterval(simulateMarketTick, 2200 + Math.random()*1800);
 }
 
+// Fetch live rates for the provided mover keys (calls our /api/convert endpoint)
+async function fetchLiveRatesForMovers() {
+  if (!chartDataStore || !chartDataStore.pairs) return;
+  const movers = computeTopMovers(8);
+  if (!movers.length) return;
+  const updatedKeys = [];
+  for (const m of movers) {
+    try {
+      const url = `/api/convert?from=${encodeURIComponent(m.from)}&to=${encodeURIComponent(m.to)}&amount=1`;
+      const r = await fetch(url);
+      const j = await r.json();
+      if (j && j.success && j.data && j.data.result !== undefined) {
+        const rate = j.data.info && j.data.info.rate ? Number(j.data.info.rate) : (j.data.result ? Number(j.data.result) : null);
+        if (rate && !isNaN(rate)) {
+          const key = m.key;
+          const arr = chartDataStore.pairs[key] || [];
+          const lastDate = arr.length ? arr[arr.length-1].date : new Date().toISOString().slice(0,10);
+          const newDate = new Date().toISOString().slice(0,10);
+          // append only if rate changed meaningfully
+          const prev = arr.length ? arr[arr.length-1].rate : null;
+          if (prev === null || Math.abs((rate - prev) / (prev || rate)) > 0.0001) {
+            arr.push({ date: newDate, rate: rate });
+            if (arr.length > 60) arr.shift();
+            chartDataStore.pairs[key] = arr;
+            updatedKeys.push(key);
+            recentlyUpdated.add(key);
+            setTimeout(() => recentlyUpdated.delete(key), 1400);
+          }
+        }
+      }
+    } catch (err) {
+      // ignore individual fetch failures
+    }
+  }
+  if (updatedKeys.length) {
+    showToast('Live rates updated', 'success');
+    renderMarketMovers();
+  } else {
+    showToast('No live updates available', 'info');
+  }
+}
+
 function stopMoverSimulation() {
   moverSimRunning = false;
   const btn = document.getElementById('toggleLiveBtn'); if (btn) btn.textContent = 'Resume Live';
@@ -972,6 +1014,13 @@ function simulateMarketTick() {
 document.addEventListener('DOMContentLoaded', () => {
   initDataModule();
   loadNews();
+  // do an initial live rate fetch so movers reflect real rates immediately
+  setTimeout(() => { try { fetchLiveRatesForMovers(); } catch(e) {} }, 800);
+  // wire the fetch live button
+  const fetchBtn = document.getElementById('fetchLiveBtn');
+  if (fetchBtn) fetchBtn.addEventListener('click', () => {
+    fetchLiveRatesForMovers();
+  });
 });
 
 // wire post-conversion actions: refresh market movers when conversion happens
