@@ -1,19 +1,19 @@
 :root {
-  /* modern, fresh palette inspired by common modern websites */
-  --bg: linear-gradient(180deg,#0f1724 0%, #071029 60%);
-  --card-bg: rgba(255,255,255,0.02);
+  /* palette inspired by the requested tone (not deep black) */
+  --bg: linear-gradient(135deg,#0f1530 0%, #2b1166 48%, #3b2fb1 100%);
+  --card-bg: rgba(255,255,255,0.03);
   --input-bg: rgba(255,255,255,0.04);
-  --glass-bg: rgba(255,255,255,0.03);
-  --text-main: #e6eef6;
-  --text-secondary: #9fb4d8;
-  --text-accent: #60e0ff;
-  --text-highlight: #7c8fff;
-  --btn-accent-start: #60e0ff;
-  --btn-accent-end: #7c8fff;
-  --result-bg: rgba(12,18,33,0.6);
-  --result-text: #a7fff4;
+  --glass-bg: rgba(255,255,255,0.035);
+  --text-main: #eaf2ff;
+  --text-secondary: #c7d8ff;
+  --text-accent: #5ce0d5;
+  --text-highlight: #a78bff;
+  --btn-accent-start: #5ce0d5;
+  --btn-accent-end: #7c4dff;
+  --result-bg: rgba(12,18,33,0.5);
+  --result-text: #b8fff0;
   --provider-bg: rgba(255,255,255,0.03);
-  --provider-text: #bfefff;
+  --provider-text: #eaf2ff;
   --primary-btn-bg: linear-gradient(90deg,var(--btn-accent-start) 0%,var(--btn-accent-end) 100%);
   --alert-good-bg: #063b2a;
   --alert-good-border: #198754;
@@ -211,6 +211,52 @@ main {
   width: 100%;
 }
 
+/* HERO styles */
+.hero {
+  width: 100%;
+  padding: 3.4rem 0 2.2rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hero-inner {
+  width: 100%;
+  max-width: 1400px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 28px;
+  align-items: center;
+}
+.hero-content {
+  color: var(--text-main);
+}
+.hero-eyebrow {
+  color: var(--text-accent);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.6rem;
+}
+.hero-head {
+  font-size: 2.6rem;
+  line-height: 1.02;
+  margin: 0 0 0.6rem 0;
+  font-weight: 900;
+}
+.hero-sub {
+  color: var(--text-secondary);
+  max-width: 60ch;
+  margin-bottom: 1.1rem;
+}
+.hero-cta { display:flex; gap:12px; align-items:center; }
+.ghost-btn { padding:0.8em 1.1em; border-radius:12px; border:1px solid rgba(255,255,255,0.06); color:var(--text-main); background:transparent; text-decoration:none; font-weight:700; }
+.hero-visual img { width:100%; height:auto; border-radius:14px; filter: drop-shadow(0 20px 40px rgba(8,10,30,0.32)); }
+
+@media (max-width: 1000px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero { padding: 2.2rem 0; }
+}
+
+
 .input-row {
   display: flex;
   flex-direction: row;
@@ -271,21 +317,22 @@ select optgroup {
   color-scheme: light dark;
 }
 
-/* For dark theme: use a slightly lighter option background so dark text is readable */
+/* For dark theme: use a slightly lighter option background and the theme text color so text remains readable */
 [data-theme="dark"] select,
 [data-theme="dark"] select option,
 [data-theme="dark"] select optgroup {
   background: rgba(255,255,255,0.06) !important;
-  color: var(--select-option-text) !important;
-  -webkit-text-fill-color: var(--select-option-text) !important;
+  /* use the theme's main text color for option text in dark mode */
+  color: var(--text-main) !important;
+  -webkit-text-fill-color: var(--text-main) !important;
   color-scheme: dark;
 }
 
-/* Ensure the closed select shows the same dark text and a lightened background in dark mode */
+/* Ensure the closed select shows the same readable text and a lightened background in dark mode */
 [data-theme="dark"] select {
   background: rgba(255,255,255,0.06) !important;
-  color: var(--select-option-text) !important;
-  -webkit-text-fill-color: var(--select-option-text) !important;
+  color: var(--text-main) !important;
+  -webkit-text-fill-color: var(--text-main) !important;
 }
 
 /* On light theme make select and options use a clean white background and dark text */
@@ -306,6 +353,21 @@ select:focus {
 input:focus, select:focus {
   border: 1.7px solid var(--text-accent);
   box-shadow: 0 2px 12px #2474fa7a;
+}
+
+/* Placeholder visibility: ensure instruction text in inputs is readable in all themes */
+input::placeholder, textarea::placeholder, select::placeholder {
+  color: var(--text-secondary);
+  opacity: 1; /* ensure not faded */
+}
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder { color: var(--text-secondary); opacity: 1; }
+input::-moz-placeholder, textarea::-moz-placeholder { color: var(--text-secondary); opacity: 1; }
+input:-ms-input-placeholder, textarea:-ms-input-placeholder { color: var(--text-secondary); opacity: 1; }
+input:-moz-placeholder, textarea:-moz-placeholder { color: var(--text-secondary); opacity: 1; }
+
+/* Make inline label text in alert and helper areas clearly visible */
+.alert-controls span, .trip-section .trip-desc, .fee-section .fee-desc {
+  color: var(--text-main);
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -444,6 +506,18 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #f8f9fa;
   font-size: 0.92rem;
   text-align: left;
+  /* make banner text and box more visible on darker page backgrounds */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+/* Ensure readable banner in dark theme when page background is similarly dark */
+[data-theme="dark"] #alertBanner {
+  background: linear-gradient(90deg, rgba(6,59,42,0.98), rgba(10,80,60,0.98));
+  color: #f8f9fa;
+}
+[data-theme="light"] #alertBanner {
+  background: var(--alert-good-bg);
+  color: #0f5132;
 }
 
 [data-theme="light"] #alertBanner {
@@ -621,9 +695,17 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .trip-result {
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: var(--text-main);
   text-align: left;
   min-height: 1.6em;
+  padding: 0.15em 0.1em;
+}
+
+/* Slightly lift instruction boxes on dark theme for readability */
+[data-theme="dark"] .trip-result {
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  padding: 0.25em 0.5em;
 }
 
 .trip-result-strong {
@@ -872,9 +954,15 @@ kbd { background: rgba(255,255,255,0.04); padding:0.08em 0.36em; border-radius:6
 
 .fee-result {
   font-size: 0.92rem;
-  color: var(--text-secondary);
+  color: var(--text-main);
   text-align: left;
   min-height: 2.1em;
+  padding: 0.15em 0.1em;
+}
+[data-theme="dark"] .fee-result {
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  padding: 0.25em 0.5em;
 }
 
 .fee-strong {

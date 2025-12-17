@@ -9,7 +9,7 @@ New feature highlights:
 - Live rate fetch: a "Fetch Live" control was added to update top movers from the conversion API (`/api/convert`) so movers can show up-to-date rates (useful for demoing USD/INR jumping to real values). 🔁
 - News & Insights panel (mocked feed) with summarized headlines and tags—cached for offline-friendly demos. 📰
 - Mocked datasets and local caching to ensure a flawless, fast demo experience.
-- Internationalization (i18n) scaffold: switch UI language using the selector in the header (`static/locales/*.json`).
+- New landing design: updated hero, brand 'SwapStream' and visual assets; converter lives as an embedded demo under the hero.
 
 Next steps: integrate a live news API and wire historical rates to a real data source or SSE feed for production-ready realtime charts.
 

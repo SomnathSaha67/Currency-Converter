@@ -84,57 +84,8 @@ function debounce(fn, delay) {
 const FAV_KEY = 'converter_favorites_v1';
 const ALERT_KEY = 'converter_alerts_v1';
 
-// internationalization helpers
-let i18n = { locale: 'en', dict: {} };
-
-async function loadLocale(locale) {
-  try {
-    const r = await fetch(`/static/locales/${locale}.json`);
-    const j = await r.json();
-    i18n.locale = locale;
-    i18n.dict = j;
-    applyLocale();
-    document.documentElement.lang = locale;
-    document.documentElement.dir = (locale === 'ar' ? 'rtl' : 'ltr');
-    localStorage.setItem('locale', locale);
-  } catch (e) {
-    console.warn('Locale load failed', e);
-  }
-}
-
-function t(key, vars) {
-  let str = (i18n.dict && i18n.dict[key]) ? i18n.dict[key] : key;
-  if (vars) Object.keys(vars).forEach(k => { str = str.replace(`{${k}}`, vars[k]); });
-  return str;
-}
-
-function applyLocale() {
-  // set texts for elements with data-i18n
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const k = el.getAttribute('data-i18n');
-    if (!k) return;
-    el.textContent = t(k);
-  });
-  // placeholders
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    const k = el.getAttribute('data-i18n-placeholder');
-    if (!k) return;
-    el.placeholder = t(k);
-  });
-  // titles
-  document.querySelectorAll('[data-i18n-title]').forEach(el => {
-    const k = el.getAttribute('data-i18n-title');
-    if (!k) return;
-    el.title = t(k);
-  });
-  // update certain dynamic texts
-  const convertBtn = document.getElementById('convertBtn'); if (convertBtn) convertBtn.textContent = t('convert');
-  const addFavBtn = document.getElementById('addFavoriteBtn'); if (addFavBtn) addFavBtn.textContent = t('addFavorite');
-  const saveAlertBtn = document.getElementById('saveAlertBtn'); if (saveAlertBtn) saveAlertBtn.textContent = t('saveAlert');
-  const fetchBtn = document.getElementById('fetchLiveBtn'); if (fetchBtn) fetchBtn.textContent = t('fetchLive');
-  const toggleBtn = document.getElementById('toggleLiveBtn'); if (toggleBtn) toggleBtn.textContent = moverSimRunning ? t('pauseLive') : t('resumeLive');
-  document.title = t('title');
-}
+// Internationalization removed: site is single-language (English) by design.
+// Previously used runtime i18n helpers have been removed as per request.
 
 // Tiny toast utility for micro-feedback
 function showToast(message, type = 'info', timeout = 2400) {
@@ -264,7 +215,7 @@ async function populate() {
   const feeResetBtn = document.getElementById('feeResetBtn');
   const feeResultEl = document.getElementById('feeResult');
 
-  resultArea.textContent = t('loadingCurrencies');
+  resultArea.textContent = 'Loading currencies…';
   metaArea.textContent = '';
   try {
     const data = await fetchSymbols();
@@ -293,7 +244,7 @@ async function populate() {
     metaArea.textContent = '';
     providerArea.textContent = "Provider: " + data.provider;
   } catch (err) {
-    resultArea.textContent = t('networkError');
+    resultArea.textContent = 'Network or server error while loading currencies.';
     metaArea.textContent = String(err);
     providerArea.textContent = "";
   }
@@ -303,7 +254,7 @@ async function populate() {
     const favs = loadFavorites();
     favListEl.innerHTML = '';
     if (!favs.length) {
-      favListEl.textContent = t('noFavorites');
+      favListEl.textContent = 'No favorites yet.';
       return;
     }
     favs.forEach(({ from, to }) => {
@@ -328,7 +279,7 @@ async function populate() {
     const key = pairKey(fromEl.value, toEl.value);
     const a = alerts[key];
     if (!a || !a.rate || isNaN(a.rate)) {
-      alertSummaryEl.textContent = t('noAlertSet') || 'No alert set for this pair.';
+      alertSummaryEl.textContent = 'No alert set for this pair.';
       return;
     }
     alertSummaryEl.textContent =
@@ -370,14 +321,14 @@ async function populate() {
     if (!scenarioBodyEl || !scenarioHeaderEl) return;
     if (typeof baseRate !== 'number' || !isFinite(baseRate)) {
       scenarioBodyEl.innerHTML = '';
-      scenarioHeaderEl.textContent = t('scenarioHeader');
+      scenarioHeaderEl.textContent = 'Scenario planner will appear when a valid live rate is available.';
       return;
     }
 
     const amount = Number(baseAmount);
     if (!amount || !isFinite(amount)) {
       scenarioBodyEl.innerHTML = '';
-      scenarioHeaderEl.textContent = t('scenarioHeader');
+      scenarioHeaderEl.textContent = 'Scenario planner will appear when a valid live rate is available.';
       return;
     }
 
@@ -549,7 +500,7 @@ async function populate() {
     if (!from || !to) return;
 
     // loading state
-    resultArea.textContent = t('converting');
+    resultArea.textContent = 'Converting…';
     metaArea.textContent = '';
     errorEl.textContent = '';
     alertBannerEl.style.display = 'none';
@@ -618,7 +569,7 @@ async function populate() {
       const r = await fetch(url);
       const j = await r.json();
       if (!j.success) {
-        resultArea.textContent = t('conversionFailed', { reason: j.error || 'unknown' });
+        resultArea.textContent = 'Conversion failed: ' + (j.error || 'unknown');
         providerArea.textContent = '';
         metaArea.textContent = '';
         return;
@@ -709,7 +660,7 @@ async function populate() {
       }
       providerArea.textContent = "Provider: " + provider;
     } catch (err) {
-      resultArea.textContent = t('conversionError');
+      resultArea.textContent = 'Error performing conversion.';
       metaArea.textContent = String(err);
       providerArea.textContent = "";
       updateScenarioTable(null, null, from, to);
@@ -742,9 +693,9 @@ async function populate() {
       if (favs.length > 5) favs.pop();
       saveFavorites(favs);
       renderFavorites();
-      showToast(t('addedFavorite'), 'success');
+      showToast('Added to favorites', 'success');
     } else {
-      showToast(t('alreadyFavorite'), 'info');
+      showToast('Already in favorites', 'info');
     }
   });
 
@@ -760,7 +711,7 @@ async function populate() {
     alerts[pairKey(from, to)] = { rate: rateVal, direction: dir };
     saveAlerts(alerts);
     renderAlertSummary();
-    showToast(t('alertSaved'), 'success');
+    showToast('Alert saved', 'success');
   });
 
   // Auto-convert: debounce
@@ -875,7 +826,7 @@ function renderMarketMovers() {
   if (!grid) return;
   const movers = computeTopMovers(8);
   if (!movers.length) {
-    grid.textContent = t('loadingMovers');
+    grid.textContent = 'Loading movers…';
     return;
   }
   grid.innerHTML = '';
@@ -896,7 +847,7 @@ function renderMarketMovers() {
     changeEl.classList.add(m.change >= 0 ? 'pos' : 'neg');
 
     const footer = document.createElement('div'); footer.className = 'mover-action';
-    const btn = document.createElement('button'); btn.className = 'mover-btn'; btn.textContent = t('view');
+    const btn = document.createElement('button'); btn.className = 'mover-btn'; btn.textContent = 'View';
     footer.appendChild(btn);
 
     card.appendChild(top);
@@ -908,7 +859,7 @@ function renderMarketMovers() {
     card.addEventListener('click', () => {
       document.getElementById('from').value = m.from;
       document.getElementById('to').value = m.to;
-      showToast(t('selected', { pair: `${m.from}→${m.to}` }), 'info');
+      showToast(`Selected ${m.from}→${m.to}`, 'info');
       if (runConversion) runConversion();
     });
     btn.addEventListener('click', (ev) => { ev.stopPropagation(); card.click(); });
@@ -942,7 +893,7 @@ async function loadNews() {
   const refreshBtn = document.getElementById('refreshNewsBtn');
   if (!list) return;
   if (!news || !news.items || !news.items.length) {
-    list.textContent = t('noNews');
+    list.textContent = 'No news available.';
     return;
   }
   list.innerHTML = '';
@@ -955,7 +906,7 @@ async function loadNews() {
   });
   if (refreshBtn) refreshBtn.addEventListener('click', async () => {
     localStorage.removeItem('mock_news_v1');
-    showToast(t('newsRefreshed'), 'success');
+    showToast('News refreshed', 'success');
     await loadNews();
   });
 }
@@ -974,14 +925,14 @@ function initMoverSimulation() {
     });
   }
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => { renderMarketMovers(); showToast(t('moversRefreshed'), 'success'); });
+    refreshBtn.addEventListener('click', () => { renderMarketMovers(); showToast('Movers refreshed', 'success'); });
   }
   startMoverSimulation();
 }
 
 function startMoverSimulation() {
   moverSimRunning = true;
-  const btn = document.getElementById('toggleLiveBtn'); if (btn) btn.textContent = t('pauseLive');
+  const btn = document.getElementById('toggleLiveBtn'); if (btn) btn.textContent = 'Pause Live';
   if (moverSimInterval) clearInterval(moverSimInterval);
   moverSimInterval = setInterval(simulateMarketTick, 2200 + Math.random()*1800);
 }
@@ -1021,16 +972,16 @@ async function fetchLiveRatesForMovers() {
     }
   }
   if (updatedKeys.length) {
-    showToast(t('liveUpdated'), 'success');
+    showToast('Live rates updated', 'success');
     renderMarketMovers();
   } else {
-    showToast(t('liveNone'), 'info');
+    showToast('No live updates available', 'info');
   }
 }
 
 function stopMoverSimulation() {
   moverSimRunning = false;
-  const btn = document.getElementById('toggleLiveBtn'); if (btn) btn.textContent = t('resumeLive');
+  const btn = document.getElementById('toggleLiveBtn'); if (btn) btn.textContent = 'Resume Live';
   if (moverSimInterval) { clearInterval(moverSimInterval); moverSimInterval = null; }
 }
 
@@ -1074,19 +1025,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchLiveRatesForMovers();
   });
 
-  // Internationalization: initialize language selection and load saved locale
-  const savedLocale = localStorage.getItem('locale') || 'en';
-  const langSelect = document.getElementById('langSelect');
-  if (langSelect) {
-    langSelect.value = savedLocale;
-    langSelect.addEventListener('change', (e) => {
-      const l = e.target.value;
-      loadLocale(l);
-      showToast(t('languageChanged'), 'success', 1400);
-    });
-  }
-  // load chosen locale
-  loadLocale(savedLocale);
+
+
+
 });
 
 // wire post-conversion actions: refresh market movers when conversion happens
