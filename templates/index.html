@@ -130,19 +130,102 @@
         </table>
       </section>
 
-      <!-- Market Movers: compact cards with mini-sparklines -->
-      <section class="movers-section" aria-label="Market movers">
-        <h2 class="movers-title">Market Movers</h2>
-        <div class="movers-controls">
-          <div class="movers-left"></div>
-          <div class="movers-right">
-            <button id="toggleLiveBtn" class="mover-toggle">Pause Live</button>
-            <button id="refreshMoversBtn" class="primary-btn">Refresh</button>
-            <button id="fetchLiveBtn" class="primary-btn">Fetch Live</button>
+      <!-- AI-Powered Rate Prediction & Analytics Engine -->
+      <section class="ai-prediction-section" aria-label="AI Rate Prediction">
+        <div class="ai-header">
+          <div>
+            <h2 class="ai-title">🤖 AI Rate Prediction Engine</h2>
+            <p class="ai-subtitle">Advanced ML-powered analytics and forecasting</p>
+          </div>
+          <button id="analyzePairBtn" class="primary-btn">Analyze Current Pair</button>
+        </div>
+
+        <!-- Prediction Cards -->
+        <div id="predictionCards" class="prediction-cards">
+          <div class="prediction-card">
+            <div class="card-icon">📈</div>
+            <div class="card-label">24h Prediction</div>
+            <div class="card-value" id="pred24h">--</div>
+            <div class="card-confidence" id="conf24h">--</div>
+          </div>
+          <div class="prediction-card">
+            <div class="card-icon">📊</div>
+            <div class="card-label">7-Day Forecast</div>
+            <div class="card-value" id="pred7d">--</div>
+            <div class="card-confidence" id="conf7d">--</div>
+          </div>
+          <div class="prediction-card">
+            <div class="card-icon">⚡</div>
+            <div class="card-label">Volatility Score</div>
+            <div class="card-value" id="volatilityScore">--</div>
+            <div class="card-confidence" id="volatilityLevel">--</div>
+          </div>
+          <div class="prediction-card">
+            <div class="card-icon">🎯</div>
+            <div class="card-label">AI Recommendation</div>
+            <div class="card-value" id="aiRecommendation">--</div>
+            <div class="card-confidence" id="recommendationReason">--</div>
           </div>
         </div>
-        <p class="movers-desc">Top-moving currency pairs (mock data). Click a card to prefill the converter.</p>
-        <div id="moversGrid" class="movers-grid">Loading movers…</div>
+
+        <!-- Historical Chart with Predictions -->
+        <div class="chart-container">
+          <h3 class="chart-title">Historical Rates & AI Predictions</h3>
+          <div class="chart-controls">
+            <button class="chart-btn active" data-period="7d">7 Days</button>
+            <button class="chart-btn" data-period="30d">30 Days</button>
+            <button class="chart-btn" data-period="90d">90 Days</button>
+            <button class="chart-btn" data-period="1y">1 Year</button>
+          </div>
+          <canvas id="predictionChart"></canvas>
+        </div>
+
+        <!-- Advanced Analytics -->
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h4>📉 Trend Analysis</h4>
+            <div id="trendAnalysis" class="analytics-content">
+              Run analysis to see trend patterns...
+            </div>
+          </div>
+          <div class="analytics-card">
+            <h4>🔮 Pattern Recognition</h4>
+            <div id="patternRecognition" class="analytics-content">
+              Detecting recurring patterns...
+            </div>
+          </div>
+          <div class="analytics-card">
+            <h4>💡 Smart Insights</h4>
+            <div id="smartInsights" class="analytics-content">
+              AI-generated insights will appear here...
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="risk-assessment">
+          <h3>🛡️ Risk Assessment</h3>
+          <div class="risk-bars">
+            <div class="risk-bar-item">
+              <span>Exchange Rate Risk</span>
+              <div class="risk-bar">
+                <div class="risk-fill" id="exchangeRisk" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="risk-bar-item">
+              <span>Timing Risk</span>
+              <div class="risk-bar">
+                <div class="risk-fill" id="timingRisk" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="risk-bar-item">
+              <span>Market Volatility</span>
+              <div class="risk-bar">
+                <div class="risk-fill" id="marketVolatility" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Left column: Trip Budget Helper -->
